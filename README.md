@@ -1,3 +1,21 @@
+# Neon Apex: Open Roads PRO V7 — Landscape
+
+## Cambio principal
+
+Esta versión está diseñada específicamente para **smartphone en horizontal**.
+
+- Orientación: **Sensor Landscape** (el teléfono puede girarse hacia cualquiera de los dos lados horizontales).
+- Resolución base: **1280×720**.
+- Stretch: **canvas_items + expand**, para aprovechar pantallas 16:9, 18:9, 19:9, 20:9 y similares.
+- Refuerzo en tiempo de ejecución mediante `DisplayServer.SCREEN_SENSOR_LANDSCAPE`.
+- Se mantienen el multitouch, HUD PRO, tráfico, nitro, drift, cámara dinámica y smoke test.
+
+APK generado: `NeonApex-PRO-V7-LANDSCAPE-debug.apk`.
+
+Artifact: `NeonApex-PRO-V7-LANDSCAPE-Android-Debug`.
+
+---
+
 
 ## V5 - corrección de pantalla oscura en Android
 

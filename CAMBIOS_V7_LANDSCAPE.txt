@@ -1,0 +1,13 @@
+NEON APEX PRO V7 - LANDSCAPE
+
+Corrección:
+- project.godot estaba configurado con orientation=1 (PORTRAIT).
+- Ahora usa orientation=4 (SENSOR_LANDSCAPE).
+- Se agregó window/stretch/aspect="expand".
+- El código fuerza SCREEN_SENSOR_LANDSCAPE también en runtime en dispositivos que soportan orientación.
+
+Resultado esperado:
+- El juego ocupa el smartphone acostado.
+- Puede girarse hacia izquierda o derecha manteniéndose horizontal.
+- El HUD y los controles aprovechan el ancho completo.
+- No se deforma la imagen en pantallas más anchas.

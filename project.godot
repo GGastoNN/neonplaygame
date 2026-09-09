@@ -1,7 +1,7 @@
 [application]
 config/name="Neon Apex: Open Roads PRO"
 run/main_scene="res://scenes/main.tscn"
-config/version="0.5.0-pro-fix"
+config/version="0.7.0-pro-landscape"
 config/features=PackedStringArray("4.3", "GL Compatibility")
 
 [display]
@@ -10,7 +10,8 @@ window/size/viewport_height=720
 window/size/window_width_override=1280
 window/size/window_height_override=720
 window/stretch/mode="canvas_items"
-window/handheld/orientation=1
+window/stretch/aspect="expand"
+window/handheld/orientation=4
 
 [rendering]
 renderer/rendering_method="gl_compatibility"
