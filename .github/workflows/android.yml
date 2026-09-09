@@ -30,7 +30,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Configurar Java 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: "17"
@@ -46,7 +46,8 @@ jobs:
           sdkmanager \
             "platform-tools" \
             "build-tools;34.0.0" \
-            "platforms;android-34"
+            "platforms;android-34" \
+            "platforms;android-36"
 
       - name: Crear debug keystore
         shell: bash
@@ -104,6 +105,31 @@ jobs:
 
           unzip -q -j "$RUNNER_TEMP/godot_templates.tpz" -d "$TEMPLATE_DIR"
           test -f "$TEMPLATE_DIR/android_debug.apk"
+          test -f "$TEMPLATE_DIR/android_source.zip"
+
+      - name: Instalar Android Gradle Build Template
+        shell: bash
+        run: |
+          set -euo pipefail
+          godot --headless --path . --install-android-build-template
+          test -f android/build/build.gradle
+
+      - name: Instalar Google Play Billing oficial
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf "$RUNNER_TEMP/billing-plugin" addons/GodotGooglePlayBilling
+          mkdir -p "$RUNNER_TEMP/billing-plugin" addons
+          wget -q --show-progress \
+            "https://github.com/godot-sdk-integrations/godot-google-play-billing/releases/download/3.3.0/godot-google-play-billing.zip" \
+            -O "$RUNNER_TEMP/godot-google-play-billing.zip"
+          unzip -q "$RUNNER_TEMP/godot-google-play-billing.zip" -d "$RUNNER_TEMP/billing-plugin"
+          PLUGIN_CFG="$(find "$RUNNER_TEMP/billing-plugin" -type f -name plugin.cfg -path '*GodotGooglePlayBilling*' -print -quit)"
+          test -n "$PLUGIN_CFG"
+          PLUGIN_DIR="$(dirname "$PLUGIN_CFG")"
+          cp -a "$PLUGIN_DIR" addons/GodotGooglePlayBilling
+          test -f addons/GodotGooglePlayBilling/plugin.cfg
+          find addons/GodotGooglePlayBilling -maxdepth 4 -type f -print
 
       - name: Configurar rutas Android para Godot
         shell: bash
@@ -151,6 +177,10 @@ jobs:
           test -f scripts/mobile_controls.gd
           test -f scripts/hud_overlay.gd
           test -f scripts/traffic_car.gd
+          test -f scripts/billing_manager.gd
+          test -f scripts/garage_menu.gd
+          test -f addons/GodotGooglePlayBilling/plugin.cfg
+          test -f android/build/build.gradle
           grep -q '^textures/vram_compression/import_etc2_astc=true$' project.godot
           grep -q '^window/handheld/orientation=4$' project.godot
           grep -q '^window/stretch/aspect="expand"$' project.godot
@@ -190,15 +220,15 @@ jobs:
             --verbose \
             --path . \
             --export-debug "Android" \
-            "build/NeonApex-PRO-V7-LANDSCAPE-debug.apk"
+            "build/NeonApex-PRO-V8-GARAGE-debug.apk"
 
-          test -s build/NeonApex-PRO-V7-LANDSCAPE-debug.apk
-          ls -lh build/NeonApex-PRO-V7-LANDSCAPE-debug.apk
+          test -s build/NeonApex-PRO-V8-GARAGE-debug.apk
+          ls -lh build/NeonApex-PRO-V8-GARAGE-debug.apk
 
       - name: Publicar APK descargable
         uses: actions/upload-artifact@v4
         with:
-          name: NeonApex-PRO-V7-LANDSCAPE-Android-Debug
-          path: build/NeonApex-PRO-V7-LANDSCAPE-debug.apk
+          name: NeonApex-PRO-V8-GARAGE-Android-Debug
+          path: build/NeonApex-PRO-V8-GARAGE-debug.apk
           if-no-files-found: error
           retention-days: 30
