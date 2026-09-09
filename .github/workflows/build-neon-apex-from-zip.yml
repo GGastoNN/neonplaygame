@@ -1,0 +1,56 @@
+name: Compilar Neon Apex desde ZIP
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "Neon-Apex-Open-Roads-source.zip"
+      - ".github/workflows/build-neon-apex-from-zip.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Comprobar y descomprimir proyecto
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f Neon-Apex-Open-Roads-source.zip
+          mkdir -p extracted
+          unzip -q Neon-Apex-Open-Roads-source.zip -d extracted
+          test -f extracted/neon-apex/project.godot
+
+      - name: Compilar APK con Godot 4.3
+        uses: firebelley/godot-export@v6.0.0
+        with:
+          godot_executable_download_url: https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_linux.x86_64.zip
+          godot_export_templates_download_url: https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_export_templates.tpz
+          relative_project_path: ./extracted/neon-apex
+          archive_output: false
+
+      - name: Localizar APK generado
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK="$(find extracted/neon-apex -type f -name '*.apk' -print -quit)"
+          test -n "$APK"
+          mkdir -p artifact
+          cp "$APK" artifact/Neon-Apex-Open-Roads-debug.apk
+          ls -lh artifact/Neon-Apex-Open-Roads-debug.apk
+
+      - name: Publicar APK descargable
+        uses: actions/upload-artifact@v4
+        with:
+          name: Neon-Apex-Open-Roads-APK
+          path: artifact/Neon-Apex-Open-Roads-debug.apk
+          if-no-files-found: error
+          retention-days: 30
