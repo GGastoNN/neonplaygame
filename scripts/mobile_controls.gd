@@ -12,6 +12,9 @@ var current_brake := 0.0
 var current_steer := 0.0
 var current_handbrake := false
 var current_nitro := false
+var accelerate_latched := false
+var last_accelerate_tap_ms := -10000
+const DOUBLE_TAP_MS := 360
 
 func _ready() -> void:
 	position = Vector2.ZERO
@@ -39,6 +42,7 @@ func _input(event: InputEvent) -> void:
 		if touch.pressed:
 			var action := _action_at(touch.position)
 			if action != "":
+				_handle_action_tap(action)
 				touches[touch.index] = action
 			else:
 				touches.erase(touch.index)
@@ -78,13 +82,31 @@ func _sync_state() -> void:
 	if mouse_action != "" and active.has(mouse_action):
 		active[mouse_action] = true
 
-	current_throttle = 1.0 if active["accelerate"] else 0.0
+	if active["brake"]:
+		accelerate_latched = false
+	current_throttle = 1.0 if active["accelerate"] or accelerate_latched else 0.0
 	current_brake = 1.0 if active["brake"] else 0.0
 	current_steer = (1.0 if active["steer_right"] else 0.0) - (1.0 if active["steer_left"] else 0.0)
 	current_handbrake = active["handbrake"]
 	current_nitro = active["nitro"]
 	controls_changed.emit(current_throttle, current_brake, current_steer, current_handbrake, current_nitro)
 	queue_redraw()
+
+func _handle_action_tap(action: String) -> void:
+	if action == "brake":
+		accelerate_latched = false
+		return
+	if action != "accelerate":
+		return
+	var now_ms := Time.get_ticks_msec()
+	if accelerate_latched:
+		accelerate_latched = false
+		last_accelerate_tap_ms = -10000
+	elif now_ms - last_accelerate_tap_ms <= DOUBLE_TAP_MS:
+		accelerate_latched = true
+		last_accelerate_tap_ms = -10000
+	else:
+		last_accelerate_tap_ms = now_ms
 
 func _action_at(pos: Vector2) -> String:
 	for zone in _zones():
@@ -116,6 +138,8 @@ func _draw() -> void:
 		var action := String(zone["action"])
 		var rect: Rect2 = zone["rect"]
 		var pressed := _is_action_active(action)
+		if action == "accelerate" and accelerate_latched:
+			pressed = true
 		var accent := _accent_for(action)
 		var style := StyleBoxFlat.new()
 		style.bg_color = Color(accent.r, accent.g, accent.b, 0.40 if pressed else 0.18)
@@ -133,7 +157,10 @@ func _draw() -> void:
 			draw_arc(center, minf(rect.size.x, rect.size.y) * 0.35, -PI * 0.9, PI * 0.9, 24, Color(accent.r,accent.g,accent.b,0.72), 3.0, true)
 		var font_size := 28 if action.begins_with("steer") else 18
 		var baseline := Vector2(rect.position.x, center.y + float(font_size) * 0.32)
-		draw_string(ThemeDB.fallback_font, baseline, String(zone["label"]), HORIZONTAL_ALIGNMENT_CENTER, rect.size.x, font_size, Color.WHITE)
+		var label_text := String(zone["label"])
+		if action == "accelerate" and accelerate_latched:
+			label_text = "AUTO ON"
+		draw_string(ThemeDB.fallback_font, baseline, label_text, HORIZONTAL_ALIGNMENT_CENTER, rect.size.x, font_size, Color.WHITE)
 
 func _is_action_active(action: String) -> bool:
 	if mouse_action == action:

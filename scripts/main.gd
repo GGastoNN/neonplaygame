@@ -16,6 +16,9 @@ var pickup_count := 0
 var mobile := OS.has_feature("mobile")
 var rng := RandomNumberGenerator.new()
 var world_ready := false
+var billing_manager: BillingManager
+var garage_menu: GarageMenu
+var garage_button: Button
 
 const ROAD_COORDS := [-120.0, 0.0, 120.0]
 const WORLD_SIZE := 520.0
@@ -470,6 +473,27 @@ func _build_hud() -> void:
 	hud.add_child(hud_overlay)
 	hud_overlay.set_pickups(pickup_count)
 
+	billing_manager = BillingManager.new()
+	hud.add_child(billing_manager)
+	billing_manager.entitlement_changed.connect(_on_entitlement_changed)
+
+	garage_button = Button.new()
+	garage_button.text = "GARAGE"
+	garage_button.position = Vector2(viewport_size.x - 430.0, 24.0)
+	garage_button.size = Vector2(110.0, 44.0)
+	garage_button.z_index = 80
+	garage_button.pressed.connect(_open_garage)
+	hud.add_child(garage_button)
+
+	garage_menu = GarageMenu.new()
+	garage_menu.z_index = 100
+	garage_menu.setup(billing_manager)
+	garage_menu.purchase_requested.connect(_on_purchase_requested)
+	garage_menu.restore_requested.connect(_on_restore_requested)
+	garage_menu.closed.connect(_on_garage_closed)
+	hud.add_child(garage_menu)
+	car.apply_purchased_upgrades(billing_manager.owned)
+
 	mobile_controls = MobileControls.new()
 	mobile_controls.position = Vector2.ZERO
 	mobile_controls.size = viewport_size
@@ -477,6 +501,37 @@ func _build_hud() -> void:
 	mobile_controls.visible = mobile or DisplayServer.is_touchscreen_available()
 	mobile_controls.controls_changed.connect(_on_mobile_controls)
 	hud.add_child(mobile_controls)
+
+
+func _open_garage() -> void:
+	if garage_menu == null:
+		return
+	garage_menu.open_menu()
+	if mobile_controls != null:
+		mobile_controls.clear_controls()
+		mobile_controls.visible = false
+	if car != null:
+		car.set_physics_process(false)
+
+func _on_garage_closed() -> void:
+	if mobile_controls != null:
+		mobile_controls.visible = mobile or DisplayServer.is_touchscreen_available()
+	if car != null and world_ready:
+		car.set_physics_process(true)
+
+func _on_purchase_requested(product_id: String) -> void:
+	if billing_manager != null:
+		billing_manager.purchase(product_id)
+
+func _on_restore_requested() -> void:
+	if billing_manager != null:
+		billing_manager.restore_purchases()
+
+func _on_entitlement_changed(_product_id: String, _owned: bool) -> void:
+	if car != null and billing_manager != null:
+		car.apply_purchased_upgrades(billing_manager.owned)
+	if hud_overlay != null:
+		hud_overlay.flash("GARAGE // MEJORA INSTALADA", 2.0)
 
 func _set_loading_message(text: String) -> void:
 	if hud_overlay != null:

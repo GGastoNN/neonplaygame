@@ -27,6 +27,12 @@ var nitro_flames: Array[MeshInstance3D] = []
 var brake_material: StandardMaterial3D
 var underglow_material: StandardMaterial3D
 var last_speed := 0.0
+var nitro_capacity := 100.0
+var base_max_speed := 58.0
+var base_acceleration := 31.0
+var base_steering_response := 5.2
+var base_steering_speed := 2.25
+var base_grip := 8.5
 
 func _ready() -> void:
 	collision_layer = 1
@@ -43,7 +49,22 @@ func set_mobile_input(throttle: float, brake: float, steer: float, handbrake: bo
 	nitro_input = nitro
 
 func add_nitro(amount: float) -> void:
-	nitro_amount = clampf(nitro_amount + amount, 0.0, 100.0)
+	nitro_amount = clampf(nitro_amount + amount, 0.0, nitro_capacity)
+
+func apply_purchased_upgrades(owned: Dictionary) -> void:
+	max_speed = base_max_speed * (1.18 if bool(owned.get("neon_engine_stage1", false)) else 1.0)
+	acceleration = base_acceleration * (1.16 if bool(owned.get("neon_engine_stage1", false)) else 1.0)
+	steering_response = base_steering_response * (1.22 if bool(owned.get("neon_steering_pro", false)) else 1.0)
+	steering_speed = base_steering_speed
+	grip = base_grip * (1.15 if bool(owned.get("neon_steering_pro", false)) else 1.0)
+	if bool(owned.get("neon_aero_kit", false)):
+		grip *= 1.10
+		steering_speed = base_steering_speed * 1.06
+	nitro_capacity = 140.0 if bool(owned.get("neon_nitro_tank", false)) else 100.0
+	nitro_amount = minf(nitro_amount, nitro_capacity)
+	if underglow_material != null and bool(owned.get("neon_lighting_pack", false)):
+		underglow_material.albedo_color = Color("a855f7")
+		underglow_material.emission = Color("a855f7")
 
 func _physics_process(delta: float) -> void:
 	var throttle := maxf(throttle_input, Input.get_action_strength("accelerate"))
@@ -59,7 +80,7 @@ func _physics_process(delta: float) -> void:
 	if using_nitro:
 		nitro_amount = maxf(0.0, nitro_amount - 25.0 * delta)
 	else:
-		nitro_amount = minf(100.0, nitro_amount + 5.5 * delta)
+		nitro_amount = minf(nitro_capacity, nitro_amount + (7.2 if nitro_capacity > 100.0 else 5.5) * delta)
 
 	if throttle > 0.0:
 		var accel_scale := lerpf(1.0, 0.48, clampf(maxf(speed,0.0) / maxf(target_max,1.0), 0.0, 1.0))
