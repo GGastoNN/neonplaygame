@@ -100,3 +100,8 @@ El APK se llama `NeonApex-PRO-debug.apk`.
 Esta versión elimina la dependencia del caché global de `class_name` para el arranque. `main.gd` carga los scripts principales mediante `preload()` y el Garage ya no exige `BillingManager` como tipo estático. También se corrigió la ruta de activación del plugin a `res://addons/GodotGooglePlayBilling/plugin.cfg`.
 
 APK esperado: `NeonApex-PRO-V9-GARAGE-debug.apk`.
+
+
+## V10 - compatibilidad Godot 4.3 Billing
+
+Se corrigió la creación de la lista de productos de Google Play. En Godot 4.3, `PackedStringArray(...)` no es una expresión válida para una constante GDScript. Ahora los IDs se crean en runtime como un `PackedStringArray` tipado. También se fuerza `--quit` al instalar el Android Gradle Build Template para evitar jobs de CI bloqueados.

@@ -1,0 +1,7 @@
+V10 - FIX GODOT 4.3 BILLING
+
+- Corregido Parse Error: PRODUCT_IDS no puede ser PackedStringArray(...) const en Godot 4.3.
+- PRODUCT_IDS ahora se crea en runtime como PackedStringArray tipado.
+- Se mantienen preload explícitos para evitar dependencia del cache de class_name.
+- Version code Android: 10.
+- APK: NeonApex-PRO-V10-GARAGE-debug.apk

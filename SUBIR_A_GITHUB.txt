@@ -8,3 +8,5 @@ NEON APEX PRO 0.4 - SUBIDA
 6. Descarga el artifact NeonApex-PRO-Android-Debug.
 
 IMPORTANTE: no subas el ZIP como único archivo. Debes subir project.godot, export_presets.cfg, scenes, scripts y .github.
+
+V10: reemplazar todos los archivos del repo con esta carpeta. El APK esperado es NeonApex-PRO-V10-GARAGE-debug.apk.
