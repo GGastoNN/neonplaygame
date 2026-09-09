@@ -148,6 +148,7 @@ jobs:
           test -f scenes/main.tscn
           test -f scripts/main.gd
           test -f scripts/car.gd
+          grep -q '^textures/vram_compression/import_etc2_astc=true$' project.godot
 
           godot --headless --editor --path . --quit
 
