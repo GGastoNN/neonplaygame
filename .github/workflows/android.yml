@@ -155,6 +155,27 @@ jobs:
 
           godot --headless --editor --path . --quit
 
+      - name: Smoke test de arranque de la escena
+        shell: bash
+        run: |
+          set -euo pipefail
+          set +e
+          godot --headless --verbose --path . --quit-after 240 2>&1 | tee runtime-smoke.log
+          GODOT_EXIT=${PIPESTATUS[0]}
+          set -e
+
+          if grep -Eiq 'SCRIPT ERROR|Parse Error|Invalid call|Invalid assignment|Invalid get index|Invalid set index' runtime-smoke.log; then
+            echo "Se detectó un error de ejecución en la escena principal."
+            cat runtime-smoke.log
+            exit 1
+          fi
+
+          if [ "$GODOT_EXIT" -ne 0 ]; then
+            echo "Godot terminó con código $GODOT_EXIT durante el smoke test."
+            cat runtime-smoke.log
+            exit "$GODOT_EXIT"
+          fi
+
       - name: Exportar APK DEBUG
         shell: bash
         run: |
@@ -167,15 +188,15 @@ jobs:
             --verbose \
             --path . \
             --export-debug "Android" \
-            "build/NeonApex-PRO-debug.apk"
+            "build/NeonApex-PRO-V5-debug.apk"
 
-          test -s build/NeonApex-PRO-debug.apk
-          ls -lh build/NeonApex-PRO-debug.apk
+          test -s build/NeonApex-PRO-V5-debug.apk
+          ls -lh build/NeonApex-PRO-V5-debug.apk
 
       - name: Publicar APK descargable
         uses: actions/upload-artifact@v4
         with:
-          name: NeonApex-PRO-Android-Debug
-          path: build/NeonApex-PRO-debug.apk
+          name: NeonApex-PRO-V5-Android-Debug
+          path: build/NeonApex-PRO-V5-debug.apk
           if-no-files-found: error
           retention-days: 30
