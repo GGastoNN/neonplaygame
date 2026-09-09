@@ -1,4 +1,3 @@
-class_name GarageMenu
 extends Control
 
 signal closed
@@ -13,13 +12,13 @@ const CATALOG: Array[Dictionary] = [
 	{"id":"neon_lighting_pack", "name":"NEON SIGNATURE", "desc":"Underglow violeta premium para el coche"}
 ]
 
-var billing: BillingManager
+var billing
 var list_box: VBoxContainer
 var status_label: Label
 var title_label: Label
 var cards: Dictionary = {}
 
-func setup(manager: BillingManager) -> void:
+func setup(manager) -> void:
 	billing = manager
 	if is_inside_tree():
 		_bind_billing()

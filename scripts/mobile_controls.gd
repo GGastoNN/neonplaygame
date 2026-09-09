@@ -1,4 +1,3 @@
-class_name MobileControls
 extends Control
 
 signal controls_changed(throttle: float, brake: float, steer: float, handbrake: bool, nitro: bool)

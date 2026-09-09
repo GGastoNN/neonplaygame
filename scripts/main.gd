@@ -1,9 +1,18 @@
 extends Node3D
 
-var car: ArcadeCar
+# Carga explícita de scripts: evita depender del cache global de class_name
+# en CI, Android y proyectos recién importados.
+const CarScript = preload("res://scripts/car.gd")
+const HUDScript = preload("res://scripts/hud_overlay.gd")
+const MobileControlsScript = preload("res://scripts/mobile_controls.gd")
+const TrafficCarScript = preload("res://scripts/traffic_car.gd")
+const BillingManagerScript = preload("res://scripts/billing_manager.gd")
+const GarageMenuScript = preload("res://scripts/garage_menu.gd")
+
+var car
 var hud: CanvasLayer
-var hud_overlay: ProHUD
-var mobile_controls: MobileControls
+var hud_overlay
+var mobile_controls
 var camera: Camera3D
 var spring_arm: SpringArm3D
 var camera_pivot: Node3D
@@ -16,8 +25,8 @@ var pickup_count := 0
 var mobile := OS.has_feature("mobile")
 var rng := RandomNumberGenerator.new()
 var world_ready := false
-var billing_manager: BillingManager
-var garage_menu: GarageMenu
+var billing_manager
+var garage_menu
 var garage_button: Button
 
 const ROAD_COORDS := [-120.0, 0.0, 120.0]
@@ -417,7 +426,7 @@ func _pickup_entered(body: Node, area: Area3D) -> void:
 		area.monitoring = true
 
 func _spawn_player() -> void:
-	car = ArcadeCar.new()
+	car = CarScript.new()
 	car.name = "PlayerCar"
 	car.position = Vector3(0,1.2,86)
 	add_child(car)
@@ -434,7 +443,7 @@ func _spawn_traffic() -> void:
 			0: route = loop_outer
 			1: route = loop_center
 			_: route = loop_west
-		var traffic := TrafficCar.new()
+		var traffic = TrafficCarScript.new()
 		traffic.setup(route,i%route.size(),14.0+float(i%4)*2.3,colors[i%colors.size()])
 		traffic.position = route[i%route.size()] + Vector3(3.5 if i%2==0 else -3.5,0,3.5 if i%3==0 else -3.5)
 		add_child(traffic)
@@ -467,13 +476,13 @@ func _build_hud() -> void:
 	add_child(hud)
 	var viewport_size := get_viewport().get_visible_rect().size
 
-	hud_overlay = ProHUD.new()
+	hud_overlay = HUDScript.new()
 	hud_overlay.position = Vector2.ZERO
 	hud_overlay.size = viewport_size
 	hud.add_child(hud_overlay)
 	hud_overlay.set_pickups(pickup_count)
 
-	billing_manager = BillingManager.new()
+	billing_manager = BillingManagerScript.new()
 	hud.add_child(billing_manager)
 	billing_manager.entitlement_changed.connect(_on_entitlement_changed)
 
@@ -485,7 +494,7 @@ func _build_hud() -> void:
 	garage_button.pressed.connect(_open_garage)
 	hud.add_child(garage_button)
 
-	garage_menu = GarageMenu.new()
+	garage_menu = GarageMenuScript.new()
 	garage_menu.z_index = 100
 	garage_menu.setup(billing_manager)
 	garage_menu.purchase_requested.connect(_on_purchase_requested)
@@ -494,7 +503,7 @@ func _build_hud() -> void:
 	hud.add_child(garage_menu)
 	car.apply_purchased_upgrades(billing_manager.owned)
 
-	mobile_controls = MobileControls.new()
+	mobile_controls = MobileControlsScript.new()
 	mobile_controls.position = Vector2.ZERO
 	mobile_controls.size = viewport_size
 	mobile_controls.z_index = 50

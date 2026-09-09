@@ -1,4 +1,3 @@
-class_name BillingManager
 extends Node
 
 signal status_changed(text: String)

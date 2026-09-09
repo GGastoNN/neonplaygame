@@ -1,4 +1,3 @@
-class_name ArcadeCar
 extends CharacterBody3D
 
 signal telemetry(speed_kph: float, nitro: float, drifting: bool)

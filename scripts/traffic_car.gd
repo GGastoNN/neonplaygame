@@ -1,4 +1,3 @@
-class_name TrafficCar
 extends CharacterBody3D
 
 var route: Array[Vector3] = []

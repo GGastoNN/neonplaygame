@@ -1,4 +1,3 @@
-class_name ProHUD
 extends Control
 
 var speed_kph := 0.0
