@@ -1,0 +1,13 @@
+NEON APEX PRO V6 - CORRECCION DE TIPADO GODOT 4.3
+
+Errores corregidos detectados por el smoke test del run #17:
+- hud_overlay.gd:105 px sin tipo inferible.
+- hud_overlay.gd:108 py sin tipo inferible.
+- main.gd:208 abs() devolvia Variant con inferencia estricta.
+- main.gd:248 ratio provenia de Array sin tipo y contaminaba y como Variant.
+
+Refuerzos adicionales:
+- Arrays de Dictionary, Vector3 y Color tipados explicitamente.
+- Conversiones explicitas al leer valores de Dictionary.
+- APK renombrado a NeonApex-PRO-V6-debug.apk.
+- El smoke test de arranque se mantiene antes de exportar.
