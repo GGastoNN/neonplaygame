@@ -83,3 +83,4 @@ func _build_car() -> void:
 		for z in [-1.35, 1.35]:
 			var wheel := MeshInstance3D.new(); var wm := CylinderMesh.new(); wm.top_radius=.38; wm.bottom_radius=.38; wm.height=.28
 			wheel.mesh=wm; wheel.rotation_degrees.z=90; wheel.position=Vector3(x,.42,z); add_child(wheel)
+
