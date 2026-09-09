@@ -1,0 +1,17 @@
+NEON APEX - PAQUETE CORREGIDO
+==============================
+
+1. Extraer este ZIP.
+2. Subir EL CONTENIDO de la carpeta, no la carpeta contenedora ni otro ZIP.
+3. En la raiz de GitHub deben verse:
+   project.godot
+   export_presets.cfg
+   scenes/
+   scripts/
+   .github/
+4. Ir a Actions > Build Android APK > Run workflow.
+5. Descargar el artifact: NeonApex-Android-Debug.
+
+IMPORTANTE:
+El APK que genera este workflow es DEBUG, pensado para instalar/probar.
+Para publicar en Google Play se necesita firma RELEASE y un keystore privado.
