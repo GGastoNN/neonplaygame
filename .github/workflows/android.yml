@@ -152,6 +152,8 @@ jobs:
           test -f scripts/hud_overlay.gd
           test -f scripts/traffic_car.gd
           grep -q '^textures/vram_compression/import_etc2_astc=true$' project.godot
+          grep -q '^window/handheld/orientation=4$' project.godot
+          grep -q '^window/stretch/aspect="expand"$' project.godot
 
           godot --headless --editor --path . --quit
 
@@ -188,15 +190,15 @@ jobs:
             --verbose \
             --path . \
             --export-debug "Android" \
-            "build/NeonApex-PRO-V6-debug.apk"
+            "build/NeonApex-PRO-V7-LANDSCAPE-debug.apk"
 
-          test -s build/NeonApex-PRO-V6-debug.apk
-          ls -lh build/NeonApex-PRO-V6-debug.apk
+          test -s build/NeonApex-PRO-V7-LANDSCAPE-debug.apk
+          ls -lh build/NeonApex-PRO-V7-LANDSCAPE-debug.apk
 
       - name: Publicar APK descargable
         uses: actions/upload-artifact@v4
         with:
-          name: NeonApex-PRO-V6-Android-Debug
-          path: build/NeonApex-PRO-V6-debug.apk
+          name: NeonApex-PRO-V7-LANDSCAPE-Android-Debug
+          path: build/NeonApex-PRO-V7-LANDSCAPE-debug.apk
           if-no-files-found: error
           retention-days: 30
