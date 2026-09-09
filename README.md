@@ -1,3 +1,22 @@
+# Neon Apex: Open Roads PRO V8
+
+## Novedades V8
+
+- **AUTO ACELERADOR:** doble toque rápido en ACELERA para dejarlo presionado. Un toque posterior o FRENO lo cancela.
+- **GARAGE interactivo:** botón GARAGE en carrera, tienda de mejoras permanentes y restauración de compras.
+- **Google Play Billing:** integración preparada con el plugin oficial GodotGooglePlayBilling 3.3.0.
+- **5 mejoras:** Motor Stage 1, Dirección PRO, Nitro XL, Aero Track Kit y Neon Signature.
+- Cada producto está pensado para precio base **USD 2.00** en Google Play Console.
+- Se mantiene landscape, multitouch, HUD PRO, tráfico, ciudad, checkpoints y smoke test.
+
+## Compra real
+
+Para bienes digitales Android se usa **Google Play Billing**, no Google Pay SDK directo. El checkout real funciona cuando la app está configurada y distribuida mediante Google Play. Crea los productos indicados en `GOOGLE_PLAY_COMPRAS.md`.
+
+## Compilación
+
+El workflow instala automáticamente Godot 4.3, Android Gradle Build Template y el plugin oficial de Billing. Genera `NeonApex-PRO-V8-GARAGE-debug.apk`.
+
 # Neon Apex: Open Roads PRO V7 — Landscape
 
 ## Cambio principal
@@ -10,9 +29,9 @@ Esta versión está diseñada específicamente para **smartphone en horizontal**
 - Refuerzo en tiempo de ejecución mediante `DisplayServer.SCREEN_SENSOR_LANDSCAPE`.
 - Se mantienen el multitouch, HUD PRO, tráfico, nitro, drift, cámara dinámica y smoke test.
 
-APK generado: `NeonApex-PRO-V7-LANDSCAPE-debug.apk`.
+APK generado: `NeonApex-PRO-V8-GARAGE-debug.apk`.
 
-Artifact: `NeonApex-PRO-V7-LANDSCAPE-Android-Debug`.
+Artifact: `NeonApex-PRO-V8-GARAGE-Android-Debug`.
 
 ---
 

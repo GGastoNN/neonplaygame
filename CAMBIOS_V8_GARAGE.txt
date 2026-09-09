@@ -1,0 +1,11 @@
+NEON APEX PRO V8 — GARAGE + AUTO ACELERADOR
+
+1. Doble toque rápido en ACELERA activa AUTO ON.
+2. Un toque posterior en ACELERA desactiva AUTO.
+3. FRENO cancela AUTO inmediatamente.
+4. Nuevo botón GARAGE y tienda interactiva.
+5. 5 mejoras permanentes preparadas para Google Play Billing.
+6. Cada producto debe configurarse en Play Console con precio base USD 2.00.
+7. Restauración de compras y guardado local de derechos.
+8. Motor, dirección, nitro, aero e iluminación aplican cambios reales al coche.
+9. Workflow instala GodotGooglePlayBilling 3.3.0 y usa Gradle Android.
