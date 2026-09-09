@@ -21,6 +21,7 @@ const ROAD_COORDS := [-120.0, 0.0, 120.0]
 const WORLD_SIZE := 520.0
 
 func _ready() -> void:
+	_configure_landscape_mode()
 	rng.seed = 884211
 
 	# Arranque seguro: primero jugador, cámara y HUD. De esta forma el usuario
@@ -53,6 +54,13 @@ func _ready() -> void:
 	car.set_physics_process(true)
 	if hud_overlay != null:
 		hud_overlay.flash("CITY ONLINE // DRIVE", 2.8)
+
+
+func _configure_landscape_mode() -> void:
+	# Android/iOS: permite usar el teléfono acostado hacia cualquiera de los dos lados.
+	# El project.godot también fuerza SENSOR_LANDSCAPE desde el arranque.
+	if DisplayServer.has_feature(DisplayServer.FEATURE_ORIENTATION):
+		DisplayServer.screen_set_orientation(DisplayServer.SCREEN_SENSOR_LANDSCAPE)
 
 func _process(delta: float) -> void:
 	if race_started:
