@@ -205,7 +205,7 @@ func _build_city() -> void:
 			var wz := float(gz)*32.0
 			if _near_road(wx) or _near_road(wz):
 				continue
-			var seed_value := abs(gx*92821 + gz*68917 + gx*gz*113)
+			var seed_value: int = absi(gx*92821 + gz*68917 + gx*gz*113)
 			var height := 12.0 + float(seed_value % 46)
 			var width := 18.0 + float(seed_value % 6)
 			var depth := 18.0 + float(int(seed_value / 3) % 6)
@@ -245,7 +245,7 @@ func _build_building(pos: Vector3, building_size: Vector3, color: Color, seed_va
 	var accent := Color("19d7ff") if seed_value%2==0 else Color("ff2bd6")
 	var band_mat := _emissive_material(accent,2.4)
 	for ratio in [0.32,0.68]:
-		var y := pos.y-building_size.y*0.5+building_size.y*ratio
+		var y: float = pos.y - building_size.y * 0.5 + building_size.y * float(ratio)
 		_make_visual_box(Vector3(building_size.x+0.05,0.18,0.08),Vector3(pos.x,y,pos.z-building_size.z*0.5-0.05),band_mat)
 		_make_visual_box(Vector3(0.08,0.18,building_size.z+0.05),Vector3(pos.x+building_size.x*0.5+0.05,y,pos.z),band_mat)
 	if seed_value%4==0:
@@ -264,7 +264,7 @@ func _build_street_details() -> void:
 				_make_visual_box(Vector3(0.28,0.16,0.9),Vector3(float(p),4.76,road+side*17.65),lamp_mat)
 		await get_tree().process_frame
 
-	var signs := [
+	var signs: Array[Dictionary] = [
 		{"text":"NEON APEX", "pos":Vector3(45,12,-88), "rot":0.0, "color":Color("19d7ff")},
 		{"text":"BOOST DISTRICT", "pos":Vector3(88,10,43), "rot":90.0, "color":Color("ff2bd6")},
 		{"text":"OPEN ROADS", "pos":Vector3(-82,14,78), "rot":90.0, "color":Color("43f6a6")},
@@ -272,12 +272,12 @@ func _build_street_details() -> void:
 	]
 	for data in signs:
 		var label := Label3D.new()
-		label.text = data["text"]
-		label.position = data["pos"]
-		label.rotation_degrees.y = data["rot"]
+		label.text = String(data["text"])
+		label.position = Vector3(data["pos"])
+		label.rotation_degrees.y = float(data["rot"])
 		label.font_size = 64
 		label.pixel_size = 0.025
-		label.modulate = data["color"]
+		label.modulate = Color(data["color"])
 		label.outline_size = 10
 		label.outline_modulate = Color(0.01,0.02,0.06,0.9)
 		add_child(label)
@@ -293,7 +293,7 @@ func _build_street_details() -> void:
 			add_child(light)
 
 func _build_route() -> void:
-	var route_data := [
+	var route_data: Array[Dictionary] = [
 		{"p":Vector3(0,1,48),"h":false},
 		{"p":Vector3(0,1,-92),"h":false},
 		{"p":Vector3(92,1,-120),"h":true},
@@ -306,13 +306,13 @@ func _build_route() -> void:
 		{"p":Vector3(-18,1,0),"h":true}
 	]
 	for i in range(route_data.size()):
-		var data = route_data[i]
+		var data: Dictionary = route_data[i]
 		var area := Area3D.new()
-		area.position = data["p"]
+		area.position = Vector3(data["p"])
 		area.set_meta("index",i)
 		var col := CollisionShape3D.new()
 		var box := BoxShape3D.new()
-		box.size = Vector3(5,5,24) if data["h"] else Vector3(24,5,5)
+		box.size = Vector3(5,5,24) if bool(data["h"]) else Vector3(24,5,5)
 		col.shape = box
 		area.add_child(col)
 		_build_checkpoint_gate(area,bool(data["h"]),i)
@@ -363,7 +363,7 @@ func _checkpoint_entered(body: Node, area: Area3D) -> void:
 			cp.monitoring = true
 
 func _build_pickups() -> void:
-	var positions := [Vector3(7,1.0,-58),Vector3(112,1.0,-72),Vector3(112,1.0,60),Vector3(62,1.0,112),Vector3(-62,1.0,112),Vector3(-112,1.0,62),Vector3(-72,1.0,-8),Vector3(58,1.0,8)]
+	var positions: Array[Vector3] = [Vector3(7,1.0,-58),Vector3(112,1.0,-72),Vector3(112,1.0,60),Vector3(62,1.0,112),Vector3(-62,1.0,112),Vector3(-112,1.0,62),Vector3(-72,1.0,-8),Vector3(58,1.0,8)]
 	for pos in positions:
 		var area := Area3D.new()
 		area.position = pos
@@ -416,7 +416,7 @@ func _spawn_traffic() -> void:
 	var loop_outer: Array[Vector3] = [Vector3(-120,1.0,-120),Vector3(-120,1.0,120),Vector3(120,1.0,120),Vector3(120,1.0,-120)]
 	var loop_center: Array[Vector3] = [Vector3(0,1.0,-120),Vector3(0,1.0,0),Vector3(120,1.0,0),Vector3(120,1.0,-120)]
 	var loop_west: Array[Vector3] = [Vector3(-120,1.0,0),Vector3(0,1.0,0),Vector3(0,1.0,120),Vector3(-120,1.0,120)]
-	var colors := [Color("ff365e"),Color("ffd166"),Color("43f6a6"),Color("a855f7"),Color("ff2bd6"),Color("19d7ff")]
+	var colors: Array[Color] = [Color("ff365e"),Color("ffd166"),Color("43f6a6"),Color("a855f7"),Color("ff2bd6"),Color("19d7ff")]
 	for i in range(9):
 		var route: Array[Vector3]
 		match i % 3:

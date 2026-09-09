@@ -102,10 +102,10 @@ func _draw_minimap(origin: Vector2) -> void:
 	var center := rect.get_center()
 	var road_color := Color(0.2,0.55,0.7,0.48)
 	for x in [-120.0, 0.0, 120.0]:
-		var px := center.x + x * 0.55
+		var px: float = center.x + float(x) * 0.55
 		draw_line(Vector2(px,rect.position.y+15), Vector2(px,rect.end.y-15), road_color, 4.0)
 	for z in [-120.0, 0.0, 120.0]:
-		var py := center.y + z * 0.55
+		var py: float = center.y + float(z) * 0.55
 		draw_line(Vector2(rect.position.x+15,py), Vector2(rect.end.x-15,py), road_color, 4.0)
 	var player := center + Vector2(player_world.x, player_world.z) * 0.55
 	player.x = clampf(player.x, rect.position.x+10, rect.end.x-10)
