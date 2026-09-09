@@ -14,10 +14,18 @@ var current_handbrake := false
 var current_nitro := false
 
 func _ready() -> void:
-	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	position = Vector2.ZERO
+	size = get_viewport_rect().size
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	set_process_input(true)
 	queue_redraw()
+
+
+func _process(_delta: float) -> void:
+	var viewport_size := get_viewport_rect().size
+	if size != viewport_size:
+		size = viewport_size
+		queue_redraw()
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_RESIZED:

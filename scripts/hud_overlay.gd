@@ -14,11 +14,15 @@ var player_world := Vector3.ZERO
 var pickup_count := 0
 
 func _ready() -> void:
-	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	position = Vector2.ZERO
+	size = get_viewport_rect().size
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	queue_redraw()
 
 func _process(delta: float) -> void:
+	var viewport_size := get_viewport_rect().size
+	if size != viewport_size:
+		size = viewport_size
 	if message_time > 0.0:
 		message_time = maxf(0.0, message_time - delta)
 	queue_redraw()

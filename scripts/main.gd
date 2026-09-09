@@ -15,24 +15,44 @@ var best_time := 0.0
 var pickup_count := 0
 var mobile := OS.has_feature("mobile")
 var rng := RandomNumberGenerator.new()
+var world_ready := false
 
 const ROAD_COORDS := [-120.0, 0.0, 120.0]
 const WORLD_SIZE := 520.0
 
 func _ready() -> void:
 	rng.seed = 884211
-	_build_environment()
-	_build_ground()
-	_build_stars_and_moon()
-	_build_roads()
-	_build_city()
-	_build_street_details()
-	_build_route()
-	_build_pickups()
+
+	# Arranque seguro: primero jugador, cámara y HUD. De esta forma el usuario
+	# nunca queda frente a una pantalla negra mientras se construye la ciudad.
 	_spawn_player()
-	_spawn_traffic()
+	car.set_physics_process(false)
 	_build_camera()
 	_build_hud()
+	_set_loading_message("BOOT // INICIANDO MOTOR VISUAL")
+	await get_tree().process_frame
+
+	_build_environment()
+	_build_ground()
+	_set_loading_message("BOOT // TRAZANDO AUTOPISTAS")
+	await get_tree().process_frame
+	await _build_roads()
+
+	_set_loading_message("BOOT // LEVANTANDO NIGHT CITY")
+	await _build_city()
+
+	_set_loading_message("BOOT // ILUMINANDO DISTRITOS")
+	await _build_street_details()
+
+	_build_stars_and_moon()
+	_build_route()
+	_build_pickups()
+	_spawn_traffic()
+
+	world_ready = true
+	car.set_physics_process(true)
+	if hud_overlay != null:
+		hud_overlay.flash("CITY ONLINE // DRIVE", 2.8)
 
 func _process(delta: float) -> void:
 	if race_started:
@@ -53,28 +73,30 @@ func _build_environment() -> void:
 	var env := Environment.new()
 	var sky := Sky.new()
 	var sky_mat := ProceduralSkyMaterial.new()
-	sky_mat.sky_top_color = Color("01030b")
-	sky_mat.sky_horizon_color = Color("10245b")
-	sky_mat.ground_horizon_color = Color("081733")
-	sky_mat.ground_bottom_color = Color("01030b")
+	sky_mat.sky_top_color = Color("020714")
+	sky_mat.sky_horizon_color = Color("1a4388")
+	sky_mat.ground_horizon_color = Color("102a58")
+	sky_mat.ground_bottom_color = Color("030814")
 	sky.sky_material = sky_mat
 	env.background_mode = Environment.BG_SKY
 	env.sky = sky
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	env.ambient_light_color = Color("7795e8")
-	env.ambient_light_energy = 0.48
+	env.ambient_light_energy = 0.78
 	env.fog_enabled = true
 	env.fog_light_color = Color("172d62")
-	env.fog_density = 0.0022
-	env.fog_sky_affect = 0.42
-	env.glow_enabled = true
+	env.fog_density = 0.0012
+	env.fog_sky_affect = 0.28
+	# Glow se deja desactivado en GL Compatibility para priorizar estabilidad móvil.
+	# Los materiales emisivos siguen dando el aspecto neón sin bloquear el arranque.
+	env.glow_enabled = false
 	env_node.environment = env
 	add_child(env_node)
 
 	var moon_light := DirectionalLight3D.new()
 	moon_light.rotation_degrees = Vector3(-48,-32,0)
 	moon_light.light_color = Color("a6bfff")
-	moon_light.light_energy = 0.78
+	moon_light.light_energy = 1.05
 	moon_light.shadow_enabled = true
 	add_child(moon_light)
 
@@ -91,7 +113,7 @@ func _build_ground() -> void:
 	mesh.size = Vector3(WORLD_SIZE,1.0,WORLD_SIZE)
 	visual.mesh = mesh
 	visual.position.y = -0.5
-	visual.material_override = _material(Color("041016"),0.0,0.0,0.96)
+	visual.material_override = _material(Color("071923"),0.0,0.0,0.92)
 	ground.add_child(visual)
 	add_child(ground)
 
@@ -137,9 +159,11 @@ func _build_roads() -> void:
 	for coord in ROAD_COORDS:
 		_build_road(Vector3(coord,0.035,0),Vector3(30.0,0.07,WORLD_SIZE-20.0),true)
 		_build_road(Vector3(0,0.04,coord),Vector3(WORLD_SIZE-20.0,0.07,30.0),false)
+		await get_tree().process_frame
 	for x in ROAD_COORDS:
 		for z in ROAD_COORDS:
 			_build_crosswalk(Vector3(x,0.105,z))
+		await get_tree().process_frame
 
 func _build_road(pos: Vector3, road_size: Vector3, vertical: bool) -> void:
 	var road_mat := _material(Color("111824"),0.0,0.05,0.78)
@@ -174,6 +198,7 @@ func _build_crosswalk(pos: Vector3) -> void:
 		_make_visual_box(Vector3(1.4,0.025,10.0),pos+Vector3(float(i)*2.25,0,0),mat)
 
 func _build_city() -> void:
+	var built := 0
 	for gx in range(-7,8):
 		for gz in range(-7,8):
 			var wx := float(gx)*32.0
@@ -185,8 +210,11 @@ func _build_city() -> void:
 			var width := 18.0 + float(seed_value % 6)
 			var depth := 18.0 + float(int(seed_value / 3) % 6)
 			var hue := fmod(float(seed_value%100)/100.0 + 0.52,1.0)
-			var base_color := Color.from_hsv(hue,0.42,0.18)
+			var base_color := Color.from_hsv(hue,0.42,0.24)
 			_build_building(Vector3(wx,height*0.5,wz),Vector3(width,height,depth),base_color,seed_value)
+			built += 1
+			if built % 8 == 0:
+				await get_tree().process_frame
 
 func _near_road(value: float) -> bool:
 	for road in ROAD_COORDS:
@@ -234,6 +262,7 @@ func _build_street_details() -> void:
 				_make_visual_box(Vector3(0.9,0.16,0.28),Vector3(road+side*17.65,4.76,float(p)),lamp_mat)
 				_make_visual_box(Vector3(0.15,4.8,0.15),Vector3(float(p),2.4,road+side*18.1),pole_mat)
 				_make_visual_box(Vector3(0.28,0.16,0.9),Vector3(float(p),4.76,road+side*17.65),lamp_mat)
+		await get_tree().process_frame
 
 	var signs := [
 		{"text":"NEON APEX", "pos":Vector3(45,12,-88), "rot":0.0, "color":Color("19d7ff")},
@@ -401,29 +430,49 @@ func _spawn_traffic() -> void:
 
 func _build_camera() -> void:
 	camera_pivot = Node3D.new()
-	camera_pivot.position = Vector3(0,2.15,1.0)
-	camera_pivot.rotation_degrees.x = -11.0
+	camera_pivot.position = Vector3(0,2.35,0.85)
+	camera_pivot.rotation_degrees.x = -9.0
 	car.add_child(camera_pivot)
+
 	spring_arm = SpringArm3D.new()
-	spring_arm.spring_length = 8.4
-	spring_arm.margin = 0.18
+	spring_arm.spring_length = 9.2
+	spring_arm.margin = 0.22
 	spring_arm.collision_mask = 1
 	camera_pivot.add_child(spring_arm)
+	# Evita que la cámara choque contra el propio auto y termine dentro de la carrocería.
+	spring_arm.add_excluded_object(car.get_rid())
+
 	camera = Camera3D.new()
 	camera.current = true
 	camera.fov = 70.0
+	camera.near = 0.08
+	# Posición inicial segura hasta que SpringArm procese su primer frame físico.
+	camera.position = Vector3(0,0,spring_arm.spring_length)
 	spring_arm.add_child(camera)
 
 func _build_hud() -> void:
 	hud = CanvasLayer.new()
+	hud.layer = 20
 	add_child(hud)
+	var viewport_size := get_viewport().get_visible_rect().size
+
 	hud_overlay = ProHUD.new()
+	hud_overlay.position = Vector2.ZERO
+	hud_overlay.size = viewport_size
 	hud.add_child(hud_overlay)
 	hud_overlay.set_pickups(pickup_count)
+
 	mobile_controls = MobileControls.new()
+	mobile_controls.position = Vector2.ZERO
+	mobile_controls.size = viewport_size
+	mobile_controls.z_index = 50
 	mobile_controls.visible = mobile or DisplayServer.is_touchscreen_available()
 	mobile_controls.controls_changed.connect(_on_mobile_controls)
 	hud.add_child(mobile_controls)
+
+func _set_loading_message(text: String) -> void:
+	if hud_overlay != null:
+		hud_overlay.flash(text, 999.0)
 
 func _on_mobile_controls(throttle: float, brake: float, steer: float, handbrake: bool, nitro: bool) -> void:
 	if car != null:
