@@ -1,0 +1,159 @@
+name: Build Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "project.godot"
+      - "export_presets.cfg"
+      - "scenes/**"
+      - "scripts/**"
+      - ".github/workflows/android.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build-android:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 40
+
+    env:
+      GODOT_VERSION: "4.3-stable"
+      GODOT_EDITOR_VERSION: "4.3.stable"
+      GODOT_ANDROID_KEYSTORE_DEBUG_PATH: ${{ runner.temp }}/debug.keystore
+      GODOT_ANDROID_KEYSTORE_DEBUG_USER: androiddebugkey
+      GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD: android
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Configurar Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Instalar componentes Android requeridos
+        shell: bash
+        run: |
+          set -euo pipefail
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager \
+            "platform-tools" \
+            "build-tools;34.0.0" \
+            "platforms;android-34"
+
+      - name: Crear debug keystore
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f "$GODOT_ANDROID_KEYSTORE_DEBUG_PATH"
+          keytool -genkeypair \
+            -v \
+            -keystore "$GODOT_ANDROID_KEYSTORE_DEBUG_PATH" \
+            -storepass "$GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD" \
+            -alias "$GODOT_ANDROID_KEYSTORE_DEBUG_USER" \
+            -keypass "$GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD" \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -dname "CN=Android Debug,O=Neon Apex,C=AR"
+
+      - name: Descargar Godot 4.3
+        shell: bash
+        run: |
+          set -euo pipefail
+          GODOT_DIR="$RUNNER_TEMP/godot"
+          mkdir -p "$GODOT_DIR"
+
+          wget -q --show-progress \
+            "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v4.3-stable_linux.x86_64.zip" \
+            -O "$RUNNER_TEMP/godot.zip"
+
+          unzip -q "$RUNNER_TEMP/godot.zip" -d "$GODOT_DIR"
+          mv "$GODOT_DIR/Godot_v4.3-stable_linux.x86_64" "$GODOT_DIR/godot"
+          chmod +x "$GODOT_DIR/godot"
+
+          echo "$GODOT_DIR" >> "$GITHUB_PATH"
+          "$GODOT_DIR/godot" --version
+
+      - name: Instalar plantillas de exportación Godot 4.3
+        shell: bash
+        run: |
+          set -euo pipefail
+          TEMPLATE_DIR="$HOME/.local/share/godot/export_templates/${GODOT_EDITOR_VERSION}"
+          mkdir -p "$TEMPLATE_DIR"
+
+          wget -q --show-progress \
+            "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v4.3-stable_export_templates.tpz" \
+            -O "$RUNNER_TEMP/godot_templates.tpz"
+
+          unzip -q -j "$RUNNER_TEMP/godot_templates.tpz" -d "$TEMPLATE_DIR"
+          test -f "$TEMPLATE_DIR/android_debug.apk"
+
+      - name: Configurar rutas Android para Godot
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.config/godot"
+
+          cat > "$HOME/.config/godot/editor_settings-4.tres" <<EOF
+          [gd_resource type="EditorSettings" format=3]
+
+          [resource]
+          export/android/android_sdk_path = "$ANDROID_HOME"
+          export/android/java_sdk_path = "$JAVA_HOME"
+          EOF
+
+          cp "$HOME/.config/godot/editor_settings-4.tres" \
+             "$HOME/.config/godot/editor_settings-4.3.tres"
+
+          echo "Godot: $(godot --version)"
+          echo "JAVA_HOME=$JAVA_HOME"
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          java -version
+          adb --version
+          test -x "$ANDROID_HOME/build-tools/34.0.0/apksigner"
+          test -f "$GODOT_ANDROID_KEYSTORE_DEBUG_PATH"
+
+      - name: Validar proyecto e importar recursos
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f project.godot
+          test -f export_presets.cfg
+          test -f scenes/main.tscn
+          test -f scripts/main.gd
+          test -f scripts/car.gd
+
+          godot --headless --editor --path . --quit
+
+      - name: Exportar APK DEBUG
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build
+
+          godot \
+            --headless \
+            --verbose \
+            --path . \
+            --export-debug "Android" \
+            "build/NeonApex-debug.apk"
+
+          test -s build/NeonApex-debug.apk
+          ls -lh build/NeonApex-debug.apk
+
+      - name: Publicar APK descargable
+        uses: actions/upload-artifact@v4
+        with:
+          name: NeonApex-Android-Debug
+          path: build/NeonApex-debug.apk
+          if-no-files-found: error
+          retention-days: 30
