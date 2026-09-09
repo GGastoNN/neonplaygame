@@ -148,6 +148,9 @@ jobs:
           test -f scenes/main.tscn
           test -f scripts/main.gd
           test -f scripts/car.gd
+          test -f scripts/mobile_controls.gd
+          test -f scripts/hud_overlay.gd
+          test -f scripts/traffic_car.gd
           grep -q '^textures/vram_compression/import_etc2_astc=true$' project.godot
 
           godot --headless --editor --path . --quit
@@ -164,15 +167,15 @@ jobs:
             --verbose \
             --path . \
             --export-debug "Android" \
-            "build/NeonApex-debug.apk"
+            "build/NeonApex-PRO-debug.apk"
 
-          test -s build/NeonApex-debug.apk
-          ls -lh build/NeonApex-debug.apk
+          test -s build/NeonApex-PRO-debug.apk
+          ls -lh build/NeonApex-PRO-debug.apk
 
       - name: Publicar APK descargable
         uses: actions/upload-artifact@v4
         with:
-          name: NeonApex-Android-Debug
-          path: build/NeonApex-debug.apk
+          name: NeonApex-PRO-Android-Debug
+          path: build/NeonApex-PRO-debug.apk
           if-no-files-found: error
           retention-days: 30
