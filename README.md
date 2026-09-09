@@ -94,3 +94,9 @@ Ejemplo: podés mantener **ACELERA + ▶ + NITRO** a la vez.
 5. Al finalizar, descargá el artifact **NeonApex-PRO-Android-Debug**.
 
 El APK se llama `NeonApex-PRO-debug.apk`.
+
+## V9 - corrección de clases en CI/Godot 4.3
+
+Esta versión elimina la dependencia del caché global de `class_name` para el arranque. `main.gd` carga los scripts principales mediante `preload()` y el Garage ya no exige `BillingManager` como tipo estático. También se corrigió la ruta de activación del plugin a `res://addons/GodotGooglePlayBilling/plugin.cfg`.
+
+APK esperado: `NeonApex-PRO-V9-GARAGE-debug.apk`.

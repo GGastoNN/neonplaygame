@@ -1,0 +1,9 @@
+NEON APEX PRO V9 - FIX CLASES GODOT 4.3
+=========================================
+
+- main.gd ya no depende del cache global de class_name.
+- Scripts cargados explícitamente con preload().
+- garage_menu.gd desacoplado del tipo BillingManager.
+- Ruta correcta del plugin: res://addons/GodotGooglePlayBilling/plugin.cfg
+- Se conservan AUTO ACELERA, landscape y Garage/Google Play Billing.
+- APK esperado: NeonApex-PRO-V9-GARAGE-debug.apk
