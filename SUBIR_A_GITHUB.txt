@@ -1,17 +1,16 @@
-NEON APEX - PAQUETE CORREGIDO
-==============================
+NEON PLAY GAME - CORRECCIÓN WORKFLOW ANDROID
+============================================
 
-1. Extraer este ZIP.
-2. Subir EL CONTENIDO de la carpeta, no la carpeta contenedora ni otro ZIP.
-3. En la raiz de GitHub deben verse:
-   project.godot
-   export_presets.cfg
-   scenes/
-   scripts/
-   .github/
-4. Ir a Actions > Build Android APK > Run workflow.
-5. Descargar el artifact: NeonApex-Android-Debug.
+1. Suba TODO el contenido de esta carpeta a la raíz del repositorio.
+2. Asegúrese de que exista:
+   .github/workflows/android.yml
+3. No suba el proyecto dentro de otro ZIP.
+4. Luego vaya a GitHub -> Actions -> Build Android APK -> Run workflow.
+5. Si compila, descargue el artifact NeonApex-Android-Debug.
 
-IMPORTANTE:
-El APK que genera este workflow es DEBUG, pensado para instalar/probar.
-Para publicar en Google Play se necesita firma RELEASE y un keystore privado.
+CORRECCIÓN IMPORTANTE:
+Se eliminó el uso de ${{ runner.temp }} dentro del env global del job,
+que provocaba "Unrecognized named-value: runner".
+La ruta del debug keystore ahora se crea durante el paso shell usando
+$HOME/.android/debug.keystore y se comparte con los pasos siguientes
+mediante $GITHUB_ENV.

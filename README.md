@@ -73,3 +73,7 @@ El workflow corregido exporta explícitamente con `--export-debug`, configura Ja
 ## APK de publicación
 
 El APK generado por Actions es de **depuración/prueba**. Para Google Play o una distribución release se debe crear un keystore privado permanente y configurar una exportación release. Ese keystore **no debe subirse públicamente al repositorio**.
+
+## Corrección del workflow (runner.temp)
+
+La versión actual evita usar `${{ runner.temp }}` en el `env` global del job. El keystore debug se crea en `$HOME/.android/debug.keystore` durante la ejecución y su ruta se publica mediante `$GITHUB_ENV`. También se configuran explícitamente en Godot el Android SDK, Java 17 y las credenciales del debug keystore.
