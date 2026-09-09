@@ -1,3 +1,10 @@
+
+## V5 - corrección de pantalla oscura en Android
+
+Esta versión cambia el arranque para crear primero jugador, cámara y HUD, y luego construir la ciudad de forma progresiva. También excluye el auto del `SpringArm3D`, fuerza el tamaño del HUD al viewport y agrega un smoke test de ejecución en GitHub Actions antes de exportar el APK.
+
+APK generado: `NeonApex-PRO-V5-debug.apk`.
+
 # Neon Apex: Open Roads PRO
 
 Juego arcade de conducción nocturna desarrollado en **Godot 4.3**, preparado para Android y escritorio.

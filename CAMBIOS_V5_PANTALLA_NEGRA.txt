@@ -1,0 +1,38 @@
+NEON APEX PRO V5 - CORRECCION DE PANTALLA OSCURA
+=================================================
+
+Cambios principales:
+
+1. Arranque seguro
+   - El jugador, la camara y el HUD se crean antes que la ciudad.
+   - El usuario ve inmediatamente la interfaz mientras se construye el mundo.
+
+2. Carga progresiva
+   - Carreteras, ciudad e iluminacion se construyen repartidas en varios frames.
+   - Reduce congelamientos y picos de carga al iniciar en Android.
+
+3. Camara corregida
+   - SpringArm3D excluye explicitamente el collider del auto.
+   - Camara con posicion inicial segura antes del primer frame fisico.
+   - Near plane reducido para evitar clipping cercano.
+
+4. HUD movil corregido
+   - ProHUD y MobileControls reciben explicitamente el tamano del viewport.
+   - Se actualizan al cambiar resolucion/orientacion.
+
+5. Visibilidad nocturna mejorada
+   - Cielo y horizonte mas visibles.
+   - Luz ambiente y luz lunar reforzadas.
+   - Niebla reducida.
+   - Glow desactivado en GL Compatibility para mejorar estabilidad movil.
+   - Los materiales emisivos/neon se mantienen.
+
+6. Validacion real en GitHub Actions
+   - Ademas de importar y exportar, Actions ejecuta la escena 240 frames en modo headless.
+   - Si aparece SCRIPT ERROR, Parse Error, Invalid call/assignment/index, el build falla antes de generar APK.
+
+APK esperado:
+  build/NeonApex-PRO-V5-debug.apk
+
+Artifact esperado:
+  NeonApex-PRO-V5-Android-Debug
