@@ -77,3 +77,8 @@ El APK generado por Actions es de **depuración/prueba**. Para Google Play o una
 ## Corrección del workflow (runner.temp)
 
 La versión actual evita usar `${{ runner.temp }}` en el `env` global del job. El keystore debug se crea en `$HOME/.android/debug.keystore` durante la ejecución y su ruta se publica mediante `$GITHUB_ENV`. También se configuran explícitamente en Godot el Android SDK, Java 17 y las credenciales del debug keystore.
+
+
+## Corrección Android V3
+
+Se habilitó `rendering/textures/vram_compression/import_etc2_astc=true` en `project.godot`, requisito de validación para exportar Android con Godot 4.3. El workflow también verifica este ajuste antes de exportar.
