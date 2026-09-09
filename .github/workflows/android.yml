@@ -22,7 +22,6 @@ jobs:
     env:
       GODOT_VERSION: "4.3-stable"
       GODOT_EDITOR_VERSION: "4.3.stable"
-      GODOT_ANDROID_KEYSTORE_DEBUG_PATH: ${{ runner.temp }}/debug.keystore
       GODOT_ANDROID_KEYSTORE_DEBUG_USER: androiddebugkey
       GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD: android
 
@@ -53,10 +52,14 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          rm -f "$GODOT_ANDROID_KEYSTORE_DEBUG_PATH"
+
+          mkdir -p "$HOME/.android"
+          KEYSTORE_PATH="$HOME/.android/debug.keystore"
+          rm -f "$KEYSTORE_PATH"
+
           keytool -genkeypair \
             -v \
-            -keystore "$GODOT_ANDROID_KEYSTORE_DEBUG_PATH" \
+            -keystore "$KEYSTORE_PATH" \
             -storepass "$GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD" \
             -alias "$GODOT_ANDROID_KEYSTORE_DEBUG_USER" \
             -keypass "$GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD" \
@@ -65,10 +68,14 @@ jobs:
             -validity 10000 \
             -dname "CN=Android Debug,O=Neon Apex,C=AR"
 
+          echo "GODOT_ANDROID_KEYSTORE_DEBUG_PATH=$KEYSTORE_PATH" >> "$GITHUB_ENV"
+          test -f "$KEYSTORE_PATH"
+
       - name: Descargar Godot 4.3
         shell: bash
         run: |
           set -euo pipefail
+
           GODOT_DIR="$RUNNER_TEMP/godot"
           mkdir -p "$GODOT_DIR"
 
@@ -87,6 +94,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+
           TEMPLATE_DIR="$HOME/.local/share/godot/export_templates/${GODOT_EDITOR_VERSION}"
           mkdir -p "$TEMPLATE_DIR"
 
@@ -101,6 +109,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+
           mkdir -p "$HOME/.config/godot"
 
           cat > "$HOME/.config/godot/editor_settings-4.tres" <<EOF
@@ -109,6 +118,9 @@ jobs:
           [resource]
           export/android/android_sdk_path = "$ANDROID_HOME"
           export/android/java_sdk_path = "$JAVA_HOME"
+          export/android/debug_keystore = "$GODOT_ANDROID_KEYSTORE_DEBUG_PATH"
+          export/android/debug_keystore_user = "$GODOT_ANDROID_KEYSTORE_DEBUG_USER"
+          export/android/debug_keystore_pass = "$GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD"
           EOF
 
           cp "$HOME/.config/godot/editor_settings-4.tres" \
@@ -117,8 +129,12 @@ jobs:
           echo "Godot: $(godot --version)"
           echo "JAVA_HOME=$JAVA_HOME"
           echo "ANDROID_HOME=$ANDROID_HOME"
+          echo "KEYSTORE=$GODOT_ANDROID_KEYSTORE_DEBUG_PATH"
+
           java -version
           adb --version
+          sdkmanager --version
+
           test -x "$ANDROID_HOME/build-tools/34.0.0/apksigner"
           test -f "$GODOT_ANDROID_KEYSTORE_DEBUG_PATH"
 
@@ -126,6 +142,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+
           test -f project.godot
           test -f export_presets.cfg
           test -f scenes/main.tscn
@@ -138,6 +155,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+
           mkdir -p build
 
           godot \
