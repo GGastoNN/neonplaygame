@@ -4,7 +4,7 @@ signal status_changed(text: String)
 signal products_changed
 signal entitlement_changed(product_id: String, owned: bool)
 
-const PRODUCT_IDS := PackedStringArray([
+var product_ids: PackedStringArray = PackedStringArray([
 	"neon_engine_stage1",
 	"neon_steering_pro",
 	"neon_nitro_tank",
@@ -22,7 +22,7 @@ var owned: Dictionary = {}
 var status := "Inicializando tienda..."
 
 func _ready() -> void:
-	for product_id in PRODUCT_IDS:
+	for product_id in product_ids:
 		prices[String(product_id)] = "USD 2.00"
 		owned[String(product_id)] = false
 	_load_local_entitlements()
@@ -78,7 +78,7 @@ func get_price(product_id: String) -> String:
 
 func _on_connected() -> void:
 	_set_status("Google Play conectado")
-	billing_client.call("query_product_details", PRODUCT_IDS, PRODUCT_TYPE_INAPP)
+	billing_client.call("query_product_details", product_ids, PRODUCT_TYPE_INAPP)
 	billing_client.call("query_purchases", PRODUCT_TYPE_INAPP, false)
 
 func _on_disconnected() -> void:
@@ -127,7 +127,7 @@ func _process_purchase(purchase: Dictionary) -> void:
 	var ids: Array = purchase.get("product_ids", [])
 	for product_value in ids:
 		var product_id := String(product_value)
-		if product_id in PRODUCT_IDS:
+		if product_id in product_ids:
 			_grant(product_id)
 	if not bool(purchase.get("is_acknowledged", false)) and billing_client != null:
 		var token := String(purchase.get("purchase_token", ""))
@@ -155,11 +155,11 @@ func _load_local_entitlements() -> void:
 	var cfg := ConfigFile.new()
 	if cfg.load(SAVE_PATH) != OK:
 		return
-	for product_id in PRODUCT_IDS:
+	for product_id in product_ids:
 		owned[String(product_id)] = bool(cfg.get_value("owned", String(product_id), false))
 
 func _save_local_entitlements() -> void:
 	var cfg := ConfigFile.new()
-	for product_id in PRODUCT_IDS:
+	for product_id in product_ids:
 		cfg.set_value("owned", String(product_id), is_owned(String(product_id)))
 	cfg.save(SAVE_PATH)
