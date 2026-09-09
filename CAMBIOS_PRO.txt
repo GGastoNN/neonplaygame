@@ -1,0 +1,23 @@
+NEON APEX: OPEN ROADS PRO 0.4
+
+CORRECCION PRINCIPAL
+- Se reemplazaron los Button táctiles por un sistema multitouch real.
+- Cada dedo se rastrea por separado mediante InputEventScreenTouch/InputEventScreenDrag.
+- Ahora se puede mantener ACELERA + IZQUIERDA/DERECHA + NITRO/DRIFT simultáneamente.
+
+GRAFICOS / PRESENTACION
+- Auto deportivo procedural multicapa.
+- Faros, stop, underglow, llantas, alerón y nitro visible.
+- Ciudad 3x3 de avenidas con edificios variados.
+- Neón, farolas, carteles 3D, luna, estrellas y niebla.
+- Tráfico IA.
+- Checkpoints gráficos.
+- Pickups de nitro.
+- HUD PRO: velocímetro, minimapa, nitro segmentado, cronómetro y speed streaks.
+- Cámara SpringArm con FOV dinámico, lean y shake.
+
+ANDROID
+- ETC2/ASTC habilitado.
+- Java 17 + Android SDK en GitHub Actions.
+- APK de salida: build/NeonApex-PRO-debug.apk
+- Artifact: NeonApex-PRO-Android-Debug

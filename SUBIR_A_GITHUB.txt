@@ -1,16 +1,10 @@
-NEON PLAY GAME - CORRECCIÓN WORKFLOW ANDROID
-============================================
+NEON APEX PRO 0.4 - SUBIDA
 
-1. Suba TODO el contenido de esta carpeta a la raíz del repositorio.
-2. Asegúrese de que exista:
-   .github/workflows/android.yml
-3. No suba el proyecto dentro de otro ZIP.
-4. Luego vaya a GitHub -> Actions -> Build Android APK -> Run workflow.
-5. Si compila, descargue el artifact NeonApex-Android-Debug.
+1. Extrae este ZIP.
+2. Sube TODO el contenido a la raíz de GGastoNN/neonplaygame.
+3. Reemplaza los archivos existentes cuando GitHub lo solicite.
+4. Verifica que .github/workflows/android.yml esté presente.
+5. Ejecuta Actions > Build Android APK > Run workflow.
+6. Descarga el artifact NeonApex-PRO-Android-Debug.
 
-CORRECCIÓN IMPORTANTE:
-Se eliminó el uso de ${{ runner.temp }} dentro del env global del job,
-que provocaba "Unrecognized named-value: runner".
-La ruta del debug keystore ahora se crea durante el paso shell usando
-$HOME/.android/debug.keystore y se comparte con los pasos siguientes
-mediante $GITHUB_ENV.
+IMPORTANTE: no subas el ZIP como único archivo. Debes subir project.godot, export_presets.cfg, scenes, scripts y .github.

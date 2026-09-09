@@ -1,84 +1,52 @@
-# Neon Apex: Open Roads
+# Neon Apex: Open Roads PRO
 
-Prototipo jugable de carreras arcade para Android creado con **Godot 4.3**.
+Juego arcade de conducción nocturna desarrollado en **Godot 4.3**, preparado para Android y escritorio.
 
-## Proyecto corregido para GitHub Actions
+## Cambios de la edición PRO 0.4
 
-Esta versión deja el proyecto Godot directamente en la raíz del repositorio. **No subas el proyecto dentro de otro ZIP**: GitHub Actions necesita encontrar `project.godot`, `export_presets.cfg`, `scenes/` y `scripts/` en la raíz.
+- Control móvil **multitáctil real**: permite acelerar y doblar al mismo tiempo, además de combinar NITRO y DRIFT.
+- Dirección progresiva con asistencia a baja velocidad y menor sensibilidad a alta velocidad.
+- Auto deportivo reconstruido con carrocería por capas, cabina, splitter, faldones, alerón, llantas, faros, luces de freno, underglow y llamas de nitro.
+- Cámara con SpringArm, FOV dinámico, inclinación y vibración por velocidad.
+- Ciudad ampliada con tres avenidas verticales y tres horizontales.
+- Edificios de alturas y colores variados con bandas luminosas, antenas y neón.
+- Cielo nocturno con estrellas, luna, niebla y luz ambiental.
+- Calles con veredas, líneas de carril, bordes neon, cruces peatonales y alumbrado.
+- Carteles 3D luminosos y luces de intersección.
+- Tráfico controlado por IA con varios autos y rutas.
+- Circuito coherente de 10 checkpoints dentro de la red de calles.
+- Pickups de nitro que reaparecen.
+- HUD gráfico nuevo con velocímetro analógico/digital, barra segmentada de nitro, minimapa, cronómetro, checkpoints, contador de pickups y efectos de velocidad.
+- Mantiene ETC2/ASTC habilitado para exportación Android.
+- Workflow de GitHub Actions actualizado para generar `NeonApex-PRO-debug.apk`.
 
-La compilación Android usa:
+## Controles Android
 
-- Godot 4.3 estable.
-- OpenJDK 17.
-- Android SDK Platform 34.
-- Android Build Tools 34.0.0.
-- Debug keystore generado automáticamente en cada ejecución.
-- Exportación `--export-debug`, evitando exigir una firma release.
+Los controles se dibujan sobre la pantalla y aceptan varios dedos simultáneamente:
 
-## Estructura
+- **◀ / ▶**: dirección
+- **ACELERA**: acelerador
+- **FRENO**: freno y marcha atrás a baja velocidad
+- **NITRO**: turbo
+- **DRIFT**: pérdida de grip controlada
 
-```text
-.
-├── .github/
-│   └── workflows/
-│       └── android.yml
-├── scenes/
-│   └── main.tscn
-├── scripts/
-│   ├── car.gd
-│   └── main.gd
-├── DESIGN.md
-├── export_presets.cfg
-├── project.godot
-└── README.md
-```
+Ejemplo: podés mantener **ACELERA + ▶ + NITRO** a la vez.
 
-## Ejecutar localmente
+## Controles PC
 
-1. Instala Godot 4.3 o superior.
-2. Abre `project.godot`.
-3. Pulsa **F6/F5**.
+- W / Flecha arriba: acelerar
+- S / Flecha abajo: frenar / marcha atrás
+- A / D o Flechas: dirección
+- Espacio: drift
+- N: nitro
+- R: reposicionar auto
 
-Controles de escritorio:
+## Exportar APK con GitHub Actions
 
-- WASD o flechas: conducir.
-- Espacio: drift/freno de mano.
-- N: nitro.
-- R: restablecer vehículo.
+1. Subí el contenido de este paquete a la raíz del repositorio.
+2. Entrá en **Actions**.
+3. Elegí **Build Android APK**.
+4. Ejecutá **Run workflow**.
+5. Al finalizar, descargá el artifact **NeonApex-PRO-Android-Debug**.
 
-En Android aparecen controles táctiles.
-
-## Generar el APK en GitHub
-
-1. Crea o limpia el repositorio de GitHub.
-2. Sube **todo el contenido de esta carpeta a la raíz**.
-3. Confirma que exista `.github/workflows/android.yml`.
-4. En GitHub abre **Actions**.
-5. Selecciona **Build Android APK**.
-6. Pulsa **Run workflow**.
-7. Cuando termine, descarga el artifact **NeonApex-Android-Debug**.
-
-También se ejecuta automáticamente al modificar el proyecto en la rama `main`.
-
-## Por qué fallaba el workflow anterior
-
-La configuración anterior terminaba usando una exportación **release**. El preset Android estaba firmado, pero no tenía configurado un keystore release, por lo que Godot devolvía:
-
-```text
-Cannot export project with preset "Android" due to configuration errors
-```
-
-El workflow corregido exporta explícitamente con `--export-debug`, configura Java 17 y Android SDK, crea el debug keystore y muestra diagnóstico antes de compilar.
-
-## APK de publicación
-
-El APK generado por Actions es de **depuración/prueba**. Para Google Play o una distribución release se debe crear un keystore privado permanente y configurar una exportación release. Ese keystore **no debe subirse públicamente al repositorio**.
-
-## Corrección del workflow (runner.temp)
-
-La versión actual evita usar `${{ runner.temp }}` en el `env` global del job. El keystore debug se crea en `$HOME/.android/debug.keystore` durante la ejecución y su ruta se publica mediante `$GITHUB_ENV`. También se configuran explícitamente en Godot el Android SDK, Java 17 y las credenciales del debug keystore.
-
-
-## Corrección Android V3
-
-Se habilitó `rendering/textures/vram_compression/import_etc2_astc=true` en `project.godot`, requisito de validación para exportar Android con Godot 4.3. El workflow también verifica este ajuste antes de exportar.
+El APK se llama `NeonApex-PRO-debug.apk`.
