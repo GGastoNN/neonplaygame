@@ -188,15 +188,15 @@ jobs:
             --verbose \
             --path . \
             --export-debug "Android" \
-            "build/NeonApex-PRO-V5-debug.apk"
+            "build/NeonApex-PRO-V6-debug.apk"
 
-          test -s build/NeonApex-PRO-V5-debug.apk
-          ls -lh build/NeonApex-PRO-V5-debug.apk
+          test -s build/NeonApex-PRO-V6-debug.apk
+          ls -lh build/NeonApex-PRO-V6-debug.apk
 
       - name: Publicar APK descargable
         uses: actions/upload-artifact@v4
         with:
-          name: NeonApex-PRO-V5-Android-Debug
-          path: build/NeonApex-PRO-V5-debug.apk
+          name: NeonApex-PRO-V6-Android-Debug
+          path: build/NeonApex-PRO-V6-debug.apk
           if-no-files-found: error
           retention-days: 30
