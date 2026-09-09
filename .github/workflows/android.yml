@@ -107,13 +107,6 @@ jobs:
           test -f "$TEMPLATE_DIR/android_debug.apk"
           test -f "$TEMPLATE_DIR/android_source.zip"
 
-      - name: Instalar Android Gradle Build Template
-        shell: bash
-        run: |
-          set -euo pipefail
-          godot --headless --path . --install-android-build-template
-          test -f android/build/build.gradle
-
       - name: Instalar Google Play Billing oficial
         shell: bash
         run: |
@@ -130,6 +123,13 @@ jobs:
           cp -a "$PLUGIN_DIR" addons/GodotGooglePlayBilling
           test -f addons/GodotGooglePlayBilling/plugin.cfg
           find addons/GodotGooglePlayBilling -maxdepth 4 -type f -print
+
+      - name: Instalar Android Gradle Build Template
+        shell: bash
+        run: |
+          set -euo pipefail
+          godot --headless --path . --install-android-build-template
+          test -f android/build/build.gradle
 
       - name: Configurar rutas Android para Godot
         shell: bash
@@ -184,6 +184,8 @@ jobs:
           grep -q '^textures/vram_compression/import_etc2_astc=true$' project.godot
           grep -q '^window/handheld/orientation=4$' project.godot
           grep -q '^window/stretch/aspect="expand"$' project.godot
+          grep -q 'preload("res://scripts/car.gd")' scripts/main.gd
+          grep -q 'preload("res://scripts/garage_menu.gd")' scripts/main.gd
 
           godot --headless --editor --path . --quit
 
@@ -220,15 +222,15 @@ jobs:
             --verbose \
             --path . \
             --export-debug "Android" \
-            "build/NeonApex-PRO-V8-GARAGE-debug.apk"
+            "build/NeonApex-PRO-V9-GARAGE-debug.apk"
 
-          test -s build/NeonApex-PRO-V8-GARAGE-debug.apk
-          ls -lh build/NeonApex-PRO-V8-GARAGE-debug.apk
+          test -s build/NeonApex-PRO-V9-GARAGE-debug.apk
+          ls -lh build/NeonApex-PRO-V9-GARAGE-debug.apk
 
       - name: Publicar APK descargable
         uses: actions/upload-artifact@v4
         with:
-          name: NeonApex-PRO-V8-GARAGE-Android-Debug
-          path: build/NeonApex-PRO-V8-GARAGE-debug.apk
+          name: NeonApex-PRO-V9-GARAGE-Android-Debug
+          path: build/NeonApex-PRO-V9-GARAGE-debug.apk
           if-no-files-found: error
           retention-days: 30
