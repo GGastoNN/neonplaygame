@@ -128,7 +128,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          godot --headless --path . --install-android-build-template
+          godot --headless --editor --path . --install-android-build-template --quit
           test -f android/build/build.gradle
 
       - name: Configurar rutas Android para Godot
@@ -186,6 +186,8 @@ jobs:
           grep -q '^window/stretch/aspect="expand"$' project.godot
           grep -q 'preload("res://scripts/car.gd")' scripts/main.gd
           grep -q 'preload("res://scripts/garage_menu.gd")' scripts/main.gd
+          ! grep -q 'const PRODUCT_IDS := PackedStringArray' scripts/billing_manager.gd
+          grep -q 'var product_ids: PackedStringArray' scripts/billing_manager.gd
 
           godot --headless --editor --path . --quit
 
@@ -222,15 +224,15 @@ jobs:
             --verbose \
             --path . \
             --export-debug "Android" \
-            "build/NeonApex-PRO-V9-GARAGE-debug.apk"
+            "build/NeonApex-PRO-V10-GARAGE-debug.apk"
 
-          test -s build/NeonApex-PRO-V9-GARAGE-debug.apk
-          ls -lh build/NeonApex-PRO-V9-GARAGE-debug.apk
+          test -s build/NeonApex-PRO-V10-GARAGE-debug.apk
+          ls -lh build/NeonApex-PRO-V10-GARAGE-debug.apk
 
       - name: Publicar APK descargable
         uses: actions/upload-artifact@v4
         with:
-          name: NeonApex-PRO-V9-GARAGE-Android-Debug
-          path: build/NeonApex-PRO-V9-GARAGE-debug.apk
+          name: NeonApex-PRO-V10-GARAGE-Android-Debug
+          path: build/NeonApex-PRO-V10-GARAGE-debug.apk
           if-no-files-found: error
           retention-days: 30
