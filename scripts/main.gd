@@ -476,7 +476,7 @@ func _spawn_traffic() -> void:
 	for i in range(12):
 		var route = routes[i % routes.size()]
 		var traffic = TrafficCarScript.new()
-		var start_idx := i % route.size()
+		var start_idx: int = i % route.size()
 		traffic.setup(route, start_idx, 12.5 + float(i % 5) * 1.8, colors[i % colors.size()])
 		traffic.position = route[start_idx]
 		add_child(traffic)
@@ -615,7 +615,7 @@ func _on_car_collision(_intensity: float) -> void:
 		hud_overlay.flash("TRÁFICO // IMPACTO", 1.0)
 
 func _start_next_mission() -> void:
-	var mission_slot := MISSION_ROTATION[missions_done % MISSION_ROTATION.size()]
+	var mission_slot: String = String(MISSION_ROTATION[missions_done % MISSION_ROTATION.size()])
 	mission_type = String(mission_slot)
 	mission_progress = 0.0
 	mission_speed_hold = 0.0
@@ -686,9 +686,9 @@ func _add_building_windows(pos: Vector3, building_size: Vector3, seed_value: int
 	var floors := int(clampf(floor(building_size.y / 6.0), 2.0, 7.0))
 	var cols := int(clampf(floor(building_size.x / 3.4), 2.0, 5.0))
 	for fy in range(floors):
-		var y := pos.y - building_size.y * 0.34 + float(fy) * (building_size.y * 0.64 / max(1, floors - 1))
+		var y: float = pos.y - building_size.y * 0.34 + float(fy) * (building_size.y * 0.64 / float(maxi(1, floors - 1)))
 		for cx in range(cols):
-			var x := pos.x - building_size.x * 0.33 + float(cx) * (building_size.x * 0.66 / max(1, cols - 1))
+			var x: float = pos.x - building_size.x * 0.33 + float(cx) * (building_size.x * 0.66 / float(maxi(1, cols - 1)))
 			_make_visual_box(Vector3(1.05, 0.72, 0.06), Vector3(x, y, pos.z - building_size.z * 0.5 - 0.08), mat)
 			if cx % 2 == 0:
 				_make_visual_box(Vector3(0.06, 0.72, 1.05), Vector3(pos.x + building_size.x * 0.5 + 0.08, y, pos.z - building_size.z * 0.33 + float(cx) * 2.2), mat)
