@@ -1,8 +1,9 @@
 [application]
 config/name="Neon Apex: Open Roads PRO"
 run/main_scene="res://scenes/main.tscn"
-config/version="0.13.0-pro-speed-wallet"
+config/version="0.14.0-pro-speed-wallet-missions"
 config/features=PackedStringArray("4.7", "GL Compatibility")
+config/icon="res://icon.png"
 
 [display]
 window/size/viewport_width=1280

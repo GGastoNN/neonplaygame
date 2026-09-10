@@ -1,20 +1,22 @@
-# Neon Apex: Open Roads PRO V13 — Speed Wallet
+# Neon Apex: Open Roads PRO V14 — Speed Wallet, Misiones y Ciudad Viva
 
 Juego arcade de conducción nocturna desarrollado en Godot para Android.
 
-## V13
+## V14
 
-- Garage Lightning sin Google Play Billing.
+- Garage Lightning con **Speed Wallet**.
 - Cada mejora cuesta **50 sats**.
 - Destino: **gastonc@speed.app**.
-- El juego genera una invoice Lightning de 50 sats mediante LNURL-pay.
-- En Android intenta abrir directamente **Speed Wallet** con la invoice preparada.
-- Botón **VERIFICAR PAGO** para confirmar una compra pendiente cuando el proveedor ofrece verificación pública.
-- Las mejoras no se desbloquean únicamente por abrir la wallet.
 - Doble toque en **ACELERA** activa AUTO; otro toque o FRENO lo cancela.
-- Landscape, multitouch, tráfico, nitro, drift, cámara dinámica, minimapa, checkpoints y ciudad neon se mantienen.
+- **Tráfico corregido** con carriles unidireccionales y sin atascos en cadena.
+- **Peatones caminando** por veredas y zonas laterales.
+- **Misiones dinámicas**: velocidad, drift, checkpoints, distancia y pickups.
+- **HUD ampliado** con panel de misión y REP.
+- **Icono de app** incluido.
+- Mejoras visuales: faros, más luces urbanas, ventanas iluminadas y ciudad más viva.
+- Landscape, multitouch, nitro, drift, cámara dinámica, minimapa y checkpoints.
 
-## Mejoras — 50 sats cada una
+## Tienda Lightning
 
 - `neon_engine_stage1` — Motor Stage 1.
 - `neon_steering_pro` — Dirección PRO.
@@ -22,18 +24,20 @@ Juego arcade de conducción nocturna desarrollado en Godot para Android.
 - `neon_aero_kit` — Aero Track Kit.
 - `neon_lighting_pack` — Neon Signature.
 
+Todas las mejoras valen **50 SATS**.
+
 ## Compilación
 
 GitHub Actions usa Godot 4.7.2, Java 17 y Android API 36.
 
 APK esperado:
 
-`NeonApex-PRO-V13-SPEED-debug.apk`
+`NeonApex-PRO-V14-SPEED-MISSIONS-debug.apk`
 
 Artifact:
 
-`NeonApex-PRO-V13-SPEED-Android-Debug`
+`NeonApex-PRO-V14-SPEED-MISSIONS-Android-Debug`
 
-## Seguridad del pago
+## Nota sobre pagos
 
-Una redirección a una wallet no demuestra que la invoice haya sido pagada. V13 solo concede la mejora cuando puede verificar settlement. Consulta `SPEED_WALLET_PAGOS.md` antes de publicar comercialmente.
+La app abre Speed Wallet con una invoice Lightning real. La mejora no se concede únicamente por abrir la wallet; solo se marca como comprada si el pago puede verificarse.

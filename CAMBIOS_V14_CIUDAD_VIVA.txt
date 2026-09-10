@@ -1,0 +1,7 @@
+V14 // CAMBIOS
+
+- Gráficos mejorados: icono, más iluminación, faros y ventanas iluminadas.
+- Tráfico reconfigurado con carriles unidireccionales y sin choques en cadena.
+- Peatones decorativos caminando en veredas.
+- Misiones dinámicas con REP y progreso en HUD.
+- Se mantiene Speed Wallet a 50 sats por mejora.
