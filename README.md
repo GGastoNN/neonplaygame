@@ -110,3 +110,8 @@ Se corrigió la creación de la lista de productos de Google Play. En Godot 4.3,
 ## V11 — Gradle CI estable
 
 La V11 reemplaza el comando aislado `--install-android-build-template` por la instalación directa del `android_source.zip` oficial de Godot 4.3 en `android/build`. También crea `android/.build_version` y valida el template antes del smoke test y la exportación. El artifact generado es `NeonApex-PRO-V11-GARAGE-Android-Debug`.
+
+
+## V12 / Android 16
+
+El pipeline Android usa Godot 4.7.2 con compileSdk/targetSdk 36, Build Tools 36.1.0 y Google Play Billing 3.3.0. Esto corrige el conflicto de AAR metadata de la V11 y alinea el proyecto con Android 16.

@@ -21,3 +21,7 @@ Google Play Billing funciona con una versión de la aplicación configurada y di
 La V8 usa el plugin oficial `GodotGooglePlayBilling` 3.3.0 / Google Play Billing 9.1.0 durante el workflow de GitHub Actions.
 
 Para producción debes usar un keystore de release estable, guardar las credenciales como GitHub Secrets y preferentemente generar un AAB para Play Console.
+
+## V12 - Android 16
+
+El pipeline V12 usa Godot 4.7.2, compileSdk 36, targetSdk 36, Build Tools 36.1.0 y GodotGooglePlayBilling 3.3.0 (Billing 9.1.0). Esto evita el conflicto de `androidx.core:core-ktx:1.15.0` que ocurría con el template Android de Godot 4.3.

@@ -1,10 +1,7 @@
-NEON APEX PRO V11 — LISTO PARA GITHUB
+V12 LISTA PARA GITHUB
 
-1. Abrí la carpeta NeonPlayGame_PRO_V11_GITHUB.
-2. Subí TODO su contenido a la RAÍZ de tu repositorio GitHub, reemplazando los archivos existentes.
-3. No subas la carpeta contenedora como una subcarpeta. project.godot debe quedar en la raíz.
-4. GitHub Actions se ejecutará automáticamente.
-5. El artifact esperado es: NeonApex-PRO-V11-GARAGE-Android-Debug
-6. APK esperado: NeonApex-PRO-V11-GARAGE-debug.apk
-
-Esta versión instala el Android Gradle Build Template manualmente desde android_source.zip para evitar el exit code 1 de Godot 4.3.
+1. Subí TODO el contenido de esta carpeta a la raíz del repositorio.
+2. Reemplazá los archivos existentes.
+3. IMPORTANTE: también subí .github/workflows/build-neon-apex-from-zip.yml para desactivar el workflow viejo.
+4. Ejecutá Actions > Build Android APK.
+5. El artifact esperado es NeonApex-PRO-V12-GARAGE-Android-Debug.

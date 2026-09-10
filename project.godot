@@ -1,8 +1,8 @@
 [application]
 config/name="Neon Apex: Open Roads PRO"
 run/main_scene="res://scenes/main.tscn"
-config/version="0.11.0-pro-garage-gradle-fix"
-config/features=PackedStringArray("4.3", "GL Compatibility")
+config/version="0.12.0-pro-garage-android16"
+config/features=PackedStringArray("4.7", "GL Compatibility")
 
 [display]
 window/size/viewport_width=1280

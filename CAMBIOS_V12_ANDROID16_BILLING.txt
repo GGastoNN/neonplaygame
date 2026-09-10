@@ -1,0 +1,11 @@
+NEON APEX PRO V12 - ANDROID 16 / BILLING
+
+- Corrige el fallo checkDebugAarMetadata del build #34.
+- Migra CI/export a Godot 4.7.2 stable.
+- Android Gradle Plugin 8.6.1.
+- compileSdk 36 / targetSdk 36.
+- Build Tools 36.1.0.
+- minSdk 24.
+- Mantiene GodotGooglePlayBilling 3.3.0 / Billing 9.1.0.
+- Mantiene acelerador AUTO, landscape, garage y compras.
+- Smoke test permanece activo antes de exportar.
