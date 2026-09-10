@@ -9,8 +9,12 @@ var cruise_phase := 0.0
 var visual_root: Node3D
 var wheel_nodes: Array[Node3D] = []
 
-func setup(points: Array[Vector3], start_index: int, speed_value: float, color_value: Color) -> void:
-	route = points
+func setup(points: Array, start_index: int, speed_value: float, color_value: Color) -> void:
+	# Las rutas se crean como arreglos literales en main.gd. Godot los trata como
+	# Array sin tipo y no permite asignarlos directamente a Array[Vector3].
+	route.clear()
+	for point in points:
+		route.append(Vector3(point))
 	route_index = posmod(start_index, max(1, route.size()))
 	drive_speed = speed_value
 	body_color = color_value

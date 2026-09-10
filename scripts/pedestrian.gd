@@ -12,8 +12,12 @@ var left_leg: Node3D
 var right_leg: Node3D
 var walk_phase := 0.0
 
-func setup(points: Array[Vector3], start_index: int, speed_value: float, skin_color: Color, cloth_color: Color) -> void:
-	route = points
+func setup(points: Array, start_index: int, speed_value: float, skin_color: Color, cloth_color: Color) -> void:
+	# Convierte de forma explícita el Array literal recibido desde main.gd al
+	# Array[Vector3] usado internamente, evitando Invalid call en Godot 4.
+	route.clear()
+	for point in points:
+		route.append(Vector3(point))
 	route_index = posmod(start_index, max(1, route.size()))
 	walk_speed = speed_value
 	body_color = skin_color
