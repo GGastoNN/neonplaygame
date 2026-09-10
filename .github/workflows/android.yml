@@ -128,8 +128,27 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          godot --headless --editor --path . --install-android-build-template --quit
+
+          TEMPLATE_DIR="$HOME/.local/share/godot/export_templates/${GODOT_EDITOR_VERSION}"
+          SOURCE_ZIP="$TEMPLATE_DIR/android_source.zip"
+
+          test -f "$SOURCE_ZIP"
+
+          rm -rf android/build
+          mkdir -p android/build
+          unzip -q -o "$SOURCE_ZIP" -d android/build
+
+          # Godot 4.3 guarda el identificador del template junto a android/build.
+          printf '%s\n' "$GODOT_EDITOR_VERSION" > android/.build_version
+          touch android/build/.gdignore
+          chmod +x android/build/gradlew
+
           test -f android/build/build.gradle
+          test -f android/build/gradlew
+          test -f android/.build_version
+          test -x android/build/gradlew
+
+          echo "Android Gradle Build Template instalado manualmente: $GODOT_EDITOR_VERSION"
 
       - name: Configurar rutas Android para Godot
         shell: bash
@@ -181,6 +200,9 @@ jobs:
           test -f scripts/garage_menu.gd
           test -f addons/GodotGooglePlayBilling/plugin.cfg
           test -f android/build/build.gradle
+          test -f android/build/gradlew
+          test -f android/.build_version
+          grep -qx "$GODOT_EDITOR_VERSION" android/.build_version
           grep -q '^textures/vram_compression/import_etc2_astc=true$' project.godot
           grep -q '^window/handheld/orientation=4$' project.godot
           grep -q '^window/stretch/aspect="expand"$' project.godot
@@ -224,15 +246,15 @@ jobs:
             --verbose \
             --path . \
             --export-debug "Android" \
-            "build/NeonApex-PRO-V10-GARAGE-debug.apk"
+            "build/NeonApex-PRO-V11-GARAGE-debug.apk"
 
-          test -s build/NeonApex-PRO-V10-GARAGE-debug.apk
-          ls -lh build/NeonApex-PRO-V10-GARAGE-debug.apk
+          test -s build/NeonApex-PRO-V11-GARAGE-debug.apk
+          ls -lh build/NeonApex-PRO-V11-GARAGE-debug.apk
 
       - name: Publicar APK descargable
         uses: actions/upload-artifact@v4
         with:
-          name: NeonApex-PRO-V10-GARAGE-Android-Debug
-          path: build/NeonApex-PRO-V10-GARAGE-debug.apk
+          name: NeonApex-PRO-V11-GARAGE-Android-Debug
+          path: build/NeonApex-PRO-V11-GARAGE-debug.apk
           if-no-files-found: error
           retention-days: 30
