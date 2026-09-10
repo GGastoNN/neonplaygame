@@ -1,0 +1,8 @@
+NEON APEX PRO V11 — FIX GRADLE CI
+
+- Mantiene el fix de Billing PRODUCT_IDS compatible con Godot 4.3.
+- Elimina el uso aislado de --install-android-build-template, que terminaba con exit code 1.
+- Instala android_source.zip manualmente en android/build.
+- Crea android/.build_version con 4.3.stable.
+- Valida build.gradle, gradlew, .build_version y permisos de ejecución.
+- Conserva Garage, Google Play Billing, landscape y acelerador AUTO por doble toque.

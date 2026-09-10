@@ -105,3 +105,8 @@ APK esperado: `NeonApex-PRO-V9-GARAGE-debug.apk`.
 ## V10 - compatibilidad Godot 4.3 Billing
 
 Se corrigió la creación de la lista de productos de Google Play. En Godot 4.3, `PackedStringArray(...)` no es una expresión válida para una constante GDScript. Ahora los IDs se crean en runtime como un `PackedStringArray` tipado. También se fuerza `--quit` al instalar el Android Gradle Build Template para evitar jobs de CI bloqueados.
+
+
+## V11 — Gradle CI estable
+
+La V11 reemplaza el comando aislado `--install-android-build-template` por la instalación directa del `android_source.zip` oficial de Godot 4.3 en `android/build`. También crea `android/.build_version` y valida el template antes del smoke test y la exportación. El artifact generado es `NeonApex-PRO-V11-GARAGE-Android-Debug`.
