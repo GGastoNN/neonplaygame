@@ -1,0 +1,10 @@
+V15 // RAMPAS, DESAFIOS Y REALISMO
+
+- El destino Lightning deja de mostrarse en la interfaz y documentación.
+- El destino tampoco se conserva como texto plano dentro de los scripts.
+- Cuatro rampas físicas señalizadas distribuidas por la ciudad.
+- Nueva misión AIR TIME: acumular dos segundos de vuelo.
+- Nueva misión CLEAN RUN: recorrer 700 metros sin impactos.
+- Resistencia aerodinámica progresiva al soltar el acelerador.
+- Control aéreo reducido y detección de aterrizajes fuertes.
+- Se conservan las correcciones de tipado verificadas tras la build #44.

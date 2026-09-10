@@ -4,7 +4,7 @@ Luego revisa en GitHub Actions el workflow:
 .github/workflows/android.yml
 
 APK esperado:
-build/NeonApex-PRO-V14-SPEED-MISSIONS-debug.apk
+build/NeonApex-PRO-V15-RAMPS-CHALLENGES-debug.apk
 
 Artifact esperado:
-NeonApex-PRO-V14-SPEED-MISSIONS-Android-Debug
+NeonApex-PRO-V15-RAMPS-CHALLENGES-Android-Debug

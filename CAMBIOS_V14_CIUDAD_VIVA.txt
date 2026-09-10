@@ -5,3 +5,6 @@ V14 // CAMBIOS
 - Peatones decorativos caminando en veredas.
 - Misiones dinámicas con REP y progreso en HUD.
 - Se mantiene Speed Wallet a 50 sats por mejora.
+- Destino Lightning oculto en toda la interfaz y documentación pública.
+- Cuatro rampas físicas señalizadas y desafíos AIR TIME / CLEAN RUN.
+- Resistencia aerodinámica, control aéreo reducido e impacto al aterrizar.

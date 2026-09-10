@@ -2,7 +2,7 @@
 
 ## Configuración incluida
 
-- Lightning Address receptora: `gastonc@speed.app`
+- Lightning Address receptora: configurada internamente y oculta en la interfaz.
 - Precio por mejora: **50 sats**
 - Red: Bitcoin Lightning
 - Wallet Android preferida: Speed Wallet (`com.app.speedwallet`)
@@ -13,8 +13,7 @@ El juego no almacena claves privadas ni credenciales de tu cuenta Speed.
 
 Para iniciar una compra:
 
-1. Convierte la Lightning Address en el endpoint LNURL-pay estándar:
-   `https://speed.app/.well-known/lnurlp/gastonc`
+1. Convierte internamente la Lightning Address en un endpoint LNURL-pay seguro.
 2. Consulta los límites admitidos y el callback de pago.
 3. Solicita al callback una invoice de `50000` millisatoshis, equivalentes a 50 sats.
 4. Recibe una invoice BOLT11 (`pr`).

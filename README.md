@@ -1,12 +1,12 @@
-# Neon Apex: Open Roads PRO V14 — Speed Wallet, Misiones y Ciudad Viva
+# Neon Apex: Open Roads PRO V15 — Rampas, Desafíos y Ciudad Viva
 
 Juego arcade de conducción nocturna desarrollado en Godot para Android.
 
-## V14
+## V15
 
 - Garage Lightning con **Speed Wallet**.
 - Cada mejora cuesta **50 sats**.
-- Destino: **gastonc@speed.app**.
+- Destino Lightning protegido y no mostrado en la interfaz.
 - Doble toque en **ACELERA** activa AUTO; otro toque o FRENO lo cancela.
 - **Tráfico corregido** con carriles unidireccionales y sin atascos en cadena.
 - **Peatones caminando** por veredas y zonas laterales.
@@ -32,11 +32,11 @@ GitHub Actions usa Godot 4.7.2, Java 17 y Android API 36.
 
 APK esperado:
 
-`NeonApex-PRO-V14-SPEED-MISSIONS-debug.apk`
+`NeonApex-PRO-V15-RAMPS-CHALLENGES-debug.apk`
 
 Artifact:
 
-`NeonApex-PRO-V14-SPEED-MISSIONS-Android-Debug`
+`NeonApex-PRO-V15-RAMPS-CHALLENGES-Android-Debug`
 
 ## Nota sobre pagos
 

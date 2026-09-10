@@ -1,4 +1,4 @@
-# Neon Apex PRO V14 — Diseño
+# Neon Apex PRO V15 — Diseño
 
 ## Objetivo
 Elevar el juego a una versión más viva y vistosa manteniendo compatibilidad móvil y build simple para GitHub Actions.
