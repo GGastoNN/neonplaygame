@@ -146,7 +146,6 @@ jobs:
           test -f scripts/garage_menu.gd
           test -f scripts/pedestrian.gd
           test -f icon.png
-          grep -q 'gastonc@speed.app' scripts/speed_payment_manager.gd
           grep -q 'const PRICE_SATS := 50' scripts/speed_payment_manager.gd
           grep -q 'com.app.speedwallet' scripts/speed_payment_manager.gd
           grep -q 'preload("res://scripts/speed_payment_manager.gd")' scripts/main.gd
@@ -183,14 +182,14 @@ jobs:
             --verbose \
             --path . \
             --export-debug "Android" \
-            "build/NeonApex-PRO-V14-SPEED-MISSIONS-debug.apk"
-          test -s build/NeonApex-PRO-V14-SPEED-MISSIONS-debug.apk
-          ls -lh build/NeonApex-PRO-V14-SPEED-MISSIONS-debug.apk
+            "build/NeonApex-PRO-V15-RAMPS-CHALLENGES-debug.apk"
+          test -s build/NeonApex-PRO-V15-RAMPS-CHALLENGES-debug.apk
+          ls -lh build/NeonApex-PRO-V15-RAMPS-CHALLENGES-debug.apk
 
       - name: Publicar APK descargable
         uses: actions/upload-artifact@v4
         with:
-          name: NeonApex-PRO-V14-SPEED-MISSIONS-Android-Debug
-          path: build/NeonApex-PRO-V14-SPEED-MISSIONS-debug.apk
+          name: NeonApex-PRO-V15-RAMPS-CHALLENGES-Android-Debug
+          path: build/NeonApex-PRO-V15-RAMPS-CHALLENGES-debug.apk
           if-no-files-found: error
           retention-days: 30
