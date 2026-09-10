@@ -1,6 +1,7 @@
 extends CharacterBody3D
 
 signal telemetry(speed_kph: float, nitro: float, drifting: bool)
+signal collision_event(intensity: float)
 
 @export var max_speed := 58.0
 @export var reverse_speed := 14.0
@@ -35,7 +36,7 @@ var base_grip := 8.5
 
 func _ready() -> void:
 	collision_layer = 1
-	collision_mask = 1
+	collision_mask = 3
 	floor_snap_length = 0.6
 	last_safe_transform = global_transform
 	_build_car()
@@ -115,6 +116,7 @@ func _physics_process(delta: float) -> void:
 
 	if get_slide_collision_count() > 0 and absf(speed) > 12.0:
 		speed *= 0.965
+		collision_event.emit(absf(speed))
 
 	if is_on_floor() and global_position.y > -1.0 and absf(rotation.x) < 0.6 and absf(rotation.z) < 0.6:
 		last_safe_transform = global_transform

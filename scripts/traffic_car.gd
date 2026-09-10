@@ -4,6 +4,8 @@ var route: Array[Vector3] = []
 var route_index := 0
 var drive_speed := 18.0
 var body_color := Color("ff365e")
+var lane_bias := 0.0
+var cruise_phase := 0.0
 var visual_root: Node3D
 var wheel_nodes: Array[Node3D] = []
 
@@ -12,15 +14,17 @@ func setup(points: Array[Vector3], start_index: int, speed_value: float, color_v
 	route_index = posmod(start_index, max(1, route.size()))
 	drive_speed = speed_value
 	body_color = color_value
+	lane_bias = randf_range(0.0, TAU)
 
 func _ready() -> void:
-	collision_layer = 1
+	collision_layer = 2
 	collision_mask = 1
 	_build_visual()
 
 func _physics_process(delta: float) -> void:
 	if route.size() < 2:
 		return
+	cruise_phase += delta
 	var target := route[route_index]
 	var flat_delta := target - global_position
 	flat_delta.y = 0.0
@@ -33,8 +37,9 @@ func _physics_process(delta: float) -> void:
 		var dir := flat_delta.normalized()
 		var target_yaw := atan2(-dir.x, -dir.z)
 		rotation.y = lerp_angle(rotation.y, target_yaw, minf(1.0, delta*3.4))
-		velocity.x = dir.x * drive_speed
-		velocity.z = dir.z * drive_speed
+		var speed_scale := 0.92 + sin(cruise_phase * 0.7 + lane_bias) * 0.06
+		velocity.x = dir.x * drive_speed * speed_scale
+		velocity.z = dir.z * drive_speed * speed_scale
 	if not is_on_floor():
 		velocity.y -= 18.0*delta
 	else:

@@ -8,6 +8,7 @@ const MobileControlsScript = preload("res://scripts/mobile_controls.gd")
 const TrafficCarScript = preload("res://scripts/traffic_car.gd")
 const SpeedPaymentManagerScript = preload("res://scripts/speed_payment_manager.gd")
 const GarageMenuScript = preload("res://scripts/garage_menu.gd")
+const PedestrianScript = preload("res://scripts/pedestrian.gd")
 
 var car
 var hud: CanvasLayer
@@ -28,9 +29,26 @@ var world_ready := false
 var payment_manager
 var garage_menu
 var garage_button: Button
+var mission_type := ""
+var mission_name := ""
+var mission_desc := ""
+var mission_progress := 0.0
+var mission_target := 1.0
+var mission_rep := 0
+var missions_done := 0
+var mission_checkpoint_base := 0
+var mission_pickups_base := 0
+var mission_speed_hold := 0.0
+var mission_drift_hold := 0.0
+var distance_total := 0.0
+var last_player_position := Vector3.ZERO
+var current_speed_kph := 0.0
+var current_drifting := false
+var collision_count := 0
 
 const ROAD_COORDS := [-120.0, 0.0, 120.0]
 const WORLD_SIZE := 520.0
+const MISSION_ROTATION := ["speed_run", "pickup_hunt", "drift_trial", "checkpoint_dash", "distance_cruise"]
 
 func _ready() -> void:
 	_configure_landscape_mode()
@@ -61,6 +79,8 @@ func _ready() -> void:
 	_build_route()
 	_build_pickups()
 	_spawn_traffic()
+	_spawn_pedestrians()
+	_start_next_mission()
 
 	world_ready = true
 	car.set_physics_process(true)
@@ -77,9 +97,15 @@ func _configure_landscape_mode() -> void:
 func _process(delta: float) -> void:
 	if race_started:
 		race_time += delta
+	if car != null:
+		if last_player_position != Vector3.ZERO:
+			distance_total += car.global_position.distance_to(last_player_position)
+		last_player_position = car.global_position
+		_update_mission_progress(delta)
 	if hud_overlay != null and car != null:
 		hud_overlay.set_race(checkpoint_index, checkpoints.size(), race_time, race_started)
 		hud_overlay.set_world_position(car.global_position)
+		hud_overlay.set_mission(mission_name, mission_desc, mission_progress, mission_target, mission_rep, missions_done)
 	if camera != null and car != null:
 		var speed_ratio := clampf(absf(car.speed) / 82.0, 0.0, 1.0)
 		var nitro_extra := 5.0 if car.nitro_input and car.nitro_amount > 0.0 and car.speed > 8.0 else 0.0
@@ -102,7 +128,9 @@ func _build_environment() -> void:
 	env.sky = sky
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	env.ambient_light_color = Color("7795e8")
-	env.ambient_light_energy = 0.78
+	env.ambient_light_energy = 0.92
+	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
+	env.ssao_enabled = false
 	env.fog_enabled = true
 	env.fog_light_color = Color("172d62")
 	env.fog_density = 0.0012
@@ -271,6 +299,8 @@ func _build_building(pos: Vector3, building_size: Vector3, color: Color, seed_va
 	if seed_value%4==0:
 		var roof_mat := _emissive_material(Color("43f6a6"),2.2)
 		_make_visual_box(Vector3(0.12,4.0,0.12),Vector3(pos.x,pos.y+building_size.y*0.5+2.0,pos.z),roof_mat)
+	if seed_value % 3 == 0:
+		_add_building_windows(pos, building_size, seed_value)
 
 func _build_street_details() -> void:
 	var pole_mat := _material(Color("202938"),0.0,0.62,0.4)
@@ -431,22 +461,45 @@ func _spawn_player() -> void:
 	car.position = Vector3(0,1.2,86)
 	add_child(car)
 	car.telemetry.connect(_on_telemetry)
+	car.collision_event.connect(_on_car_collision)
 
 func _spawn_traffic() -> void:
-	var loop_outer: Array[Vector3] = [Vector3(-120,1.0,-120),Vector3(-120,1.0,120),Vector3(120,1.0,120),Vector3(120,1.0,-120)]
-	var loop_center: Array[Vector3] = [Vector3(0,1.0,-120),Vector3(0,1.0,0),Vector3(120,1.0,0),Vector3(120,1.0,-120)]
-	var loop_west: Array[Vector3] = [Vector3(-120,1.0,0),Vector3(0,1.0,0),Vector3(0,1.0,120),Vector3(-120,1.0,120)]
-	var colors: Array[Color] = [Color("ff365e"),Color("ffd166"),Color("43f6a6"),Color("a855f7"),Color("ff2bd6"),Color("19d7ff")]
-	for i in range(9):
-		var route: Array[Vector3]
-		match i % 3:
-			0: route = loop_outer
-			1: route = loop_center
-			_: route = loop_west
+	var routes := [
+		[Vector3(-127.0,1.0,-113.0), Vector3(113.0,1.0,-113.0), Vector3(113.0,1.0,127.0), Vector3(-127.0,1.0,127.0)],
+		[Vector3(-113.0,1.0,127.0), Vector3(127.0,1.0,127.0), Vector3(127.0,1.0,-113.0), Vector3(-113.0,1.0,-113.0)],
+		[Vector3(-7.0,1.0,-113.0), Vector3(113.0,1.0,-113.0), Vector3(113.0,1.0,7.0), Vector3(-7.0,1.0,7.0)],
+		[Vector3(-113.0,1.0,-7.0), Vector3(7.0,1.0,-7.0), Vector3(7.0,1.0,113.0), Vector3(-113.0,1.0,113.0)],
+		[Vector3(-127.0,1.0,7.0), Vector3(-127.0,1.0,127.0), Vector3(-7.0,1.0,127.0), Vector3(-7.0,1.0,7.0)],
+		[Vector3(7.0,1.0,-127.0), Vector3(127.0,1.0,-127.0), Vector3(127.0,1.0,-7.0), Vector3(7.0,1.0,-7.0)]
+	]
+	var colors: Array[Color] = [Color("ff365e"), Color("ffd166"), Color("43f6a6"), Color("a855f7"), Color("ff2bd6"), Color("19d7ff")]
+	for i in range(12):
+		var route = routes[i % routes.size()]
 		var traffic = TrafficCarScript.new()
-		traffic.setup(route,i%route.size(),14.0+float(i%4)*2.3,colors[i%colors.size()])
-		traffic.position = route[i%route.size()] + Vector3(3.5 if i%2==0 else -3.5,0,3.5 if i%3==0 else -3.5)
+		var start_idx := i % route.size()
+		traffic.setup(route, start_idx, 12.5 + float(i % 5) * 1.8, colors[i % colors.size()])
+		traffic.position = route[start_idx]
 		add_child(traffic)
+
+func _spawn_pedestrians() -> void:
+	var paths := [
+		[Vector3(-136.0,0.12,-96.0), Vector3(-136.0,0.12,96.0)],
+		[Vector3(136.0,0.12,-96.0), Vector3(136.0,0.12,96.0)],
+		[Vector3(-96.0,0.12,-136.0), Vector3(96.0,0.12,-136.0)],
+		[Vector3(-96.0,0.12,136.0), Vector3(96.0,0.12,136.0)],
+		[Vector3(-16.0,0.12,-96.0), Vector3(-16.0,0.12,96.0)],
+		[Vector3(16.0,0.12,-96.0), Vector3(16.0,0.12,96.0)],
+		[Vector3(-96.0,0.12,-16.0), Vector3(96.0,0.12,-16.0)],
+		[Vector3(-96.0,0.12,16.0), Vector3(96.0,0.12,16.0)]
+	]
+	var skin_tones: Array[Color] = [Color("e4b590"), Color("8d613b"), Color("f1c6a2"), Color("6c4a2e")]
+	var cloth_colors: Array[Color] = [Color("19d7ff"), Color("ff2bd6"), Color("43f6a6"), Color("ffd166"), Color("a855f7")]
+	for i in range(18):
+		var ped = PedestrianScript.new()
+		var route = paths[i % paths.size()]
+		ped.setup(route, i % route.size(), 1.6 + float(i % 4) * 0.22, skin_tones[i % skin_tones.size()], cloth_colors[i % cloth_colors.size()])
+		ped.position = route[i % route.size()]
+		add_child(ped)
 
 func _build_camera() -> void:
 	camera_pivot = Node3D.new()
@@ -551,8 +604,94 @@ func _on_mobile_controls(throttle: float, brake: float, steer: float, handbrake:
 		car.set_mobile_input(throttle,brake,steer,handbrake,nitro)
 
 func _on_telemetry(kph: float, nitro_value: float, drifting: bool) -> void:
+	current_speed_kph = kph
+	current_drifting = drifting
 	if hud_overlay != null:
 		hud_overlay.set_telemetry(kph,nitro_value,drifting)
+
+func _on_car_collision(_intensity: float) -> void:
+	collision_count += 1
+	if hud_overlay != null:
+		hud_overlay.flash("TRÁFICO // IMPACTO", 1.0)
+
+func _start_next_mission() -> void:
+	var mission_slot := MISSION_ROTATION[missions_done % MISSION_ROTATION.size()]
+	mission_type = String(mission_slot)
+	mission_progress = 0.0
+	mission_speed_hold = 0.0
+	mission_drift_hold = 0.0
+	mission_checkpoint_base = checkpoint_index
+	mission_pickups_base = pickup_count
+	match mission_type:
+		"speed_run":
+			mission_name = "MISION // VELOCIDAD"
+			mission_desc = "Mantén 170 km/h durante 6 segundos"
+			mission_target = 6.0
+		"pickup_hunt":
+			mission_name = "MISION // NITRO HUNT"
+			mission_desc = "Recoge 3 orbes de nitro"
+			mission_target = 3.0
+		"drift_trial":
+			mission_name = "MISION // DRIFT"
+			mission_desc = "Derrapa 5 segundos acumulados"
+			mission_target = 5.0
+		"checkpoint_dash":
+			mission_name = "MISION // CHECKPOINT"
+			mission_desc = "Cruza 4 checkpoints"
+			mission_target = 4.0
+			if checkpoint_index >= checkpoints.size():
+				checkpoint_index = 0
+		"distance_cruise":
+			mission_name = "MISION // CRUCERO"
+			mission_desc = "Recorre 1.2 km por la ciudad"
+			mission_target = 1200.0
+			mission_progress = 0.0
+	if hud_overlay != null:
+		hud_overlay.flash("%s" % mission_name, 2.2)
+
+func _update_mission_progress(delta: float) -> void:
+	match mission_type:
+		"speed_run":
+			if current_speed_kph >= 170.0:
+				mission_speed_hold += delta
+			mission_progress = mission_speed_hold
+		"pickup_hunt":
+			mission_progress = float(pickup_count - mission_pickups_base)
+		"drift_trial":
+			if current_drifting and current_speed_kph > 45.0:
+				mission_drift_hold += delta
+			mission_progress = mission_drift_hold
+		"checkpoint_dash":
+			mission_progress = float(checkpoint_index - mission_checkpoint_base)
+		"distance_cruise":
+			mission_progress += car.velocity.length() * delta
+	if mission_progress >= mission_target and mission_target > 0.0:
+		_complete_mission()
+
+func _complete_mission() -> void:
+	if mission_target < 0.0:
+		return
+	missions_done += 1
+	mission_rep += 100
+	mission_progress = mission_target
+	mission_target = -1.0
+	if hud_overlay != null:
+		hud_overlay.flash("MISIÓN COMPLETA // +100 REP", 3.0)
+	await get_tree().create_timer(1.4).timeout
+	_start_next_mission()
+
+func _add_building_windows(pos: Vector3, building_size: Vector3, seed_value: int) -> void:
+	var window_color := Color("ffd77a") if seed_value % 2 == 0 else Color("8cecff")
+	var mat := _emissive_material(window_color, 1.55)
+	var floors := int(clampf(floor(building_size.y / 6.0), 2.0, 7.0))
+	var cols := int(clampf(floor(building_size.x / 3.4), 2.0, 5.0))
+	for fy in range(floors):
+		var y := pos.y - building_size.y * 0.34 + float(fy) * (building_size.y * 0.64 / max(1, floors - 1))
+		for cx in range(cols):
+			var x := pos.x - building_size.x * 0.33 + float(cx) * (building_size.x * 0.66 / max(1, cols - 1))
+			_make_visual_box(Vector3(1.05, 0.72, 0.06), Vector3(x, y, pos.z - building_size.z * 0.5 - 0.08), mat)
+			if cx % 2 == 0:
+				_make_visual_box(Vector3(0.06, 0.72, 1.05), Vector3(pos.x + building_size.x * 0.5 + 0.08, y, pos.z - building_size.z * 0.33 + float(cx) * 2.2), mat)
 
 func _material(color: Color, emission_energy := 0.0, metallic := 0.0, roughness := 0.8) -> StandardMaterial3D:
 	var mat := StandardMaterial3D.new()

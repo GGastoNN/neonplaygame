@@ -11,6 +11,12 @@ var message := "OPEN ROADS // NIGHT RUN"
 var message_time := 0.0
 var player_world := Vector3.ZERO
 var pickup_count := 0
+var mission_title := "MISIÓN // LIBRE"
+var mission_desc := "Explora la ciudad"
+var mission_progress := 0.0
+var mission_target := 1.0
+var rep_points := 0
+var missions_done := 0
 
 func _ready() -> void:
 	position = Vector2.ZERO
@@ -47,6 +53,14 @@ func flash(text: String, seconds: float = 2.0) -> void:
 	message = text
 	message_time = seconds
 
+func set_mission(title: String, desc: String, progress_value: float, target_value: float, rep_value: int, completed_value: int) -> void:
+	mission_title = title
+	mission_desc = desc
+	mission_progress = progress_value
+	mission_target = target_value
+	rep_points = rep_value
+	missions_done = completed_value
+
 func _panel(rect: Rect2, accent: Color, alpha := 0.18) -> void:
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.015, 0.025, 0.07, 0.78)
@@ -70,6 +84,7 @@ func _draw() -> void:
 	_draw_minimap(Vector2(30,78))
 	_draw_speedometer(Vector2(s.x-138,128))
 	_draw_race_panel(Vector2(s.x*0.5-190,24))
+	_draw_mission_panel(Vector2(30,280))
 	_draw_nitro(Vector2(s.x-310,250))
 	if drifting:
 		draw_string(ThemeDB.fallback_font, Vector2(s.x*0.5-110, s.y-180), "DRIFT MODE", HORIZONTAL_ALIGNMENT_CENTER, 220, 28, Color("ff2bd6"))
@@ -151,3 +166,21 @@ func _draw_nitro(origin: Vector2) -> void:
 		var col := Color("a855f7") if i < active_segments else Color(0.2,0.16,0.32,0.9)
 		draw_rect(Rect2(Vector2(x,origin.y+15),Vector2(10,20)),col,true)
 	draw_string(ThemeDB.fallback_font, origin+Vector2(184,45), "ORB %02d" % pickup_count, HORIZONTAL_ALIGNMENT_RIGHT, 70, 12, Color("43f6a6"))
+
+func _draw_mission_panel(origin: Vector2) -> void:
+	var rect := Rect2(origin, Vector2(270, 126))
+	_panel(rect, Color("f6c945"), 0.24)
+	draw_string(ThemeDB.fallback_font, origin + Vector2(14, 22), mission_title, HORIZONTAL_ALIGNMENT_LEFT, 236, 16, Color("f6c945"))
+	draw_string(ThemeDB.fallback_font, origin + Vector2(14, 44), mission_desc, HORIZONTAL_ALIGNMENT_LEFT, 242, 13, Color(0.85, 0.92, 1.0))
+	var bar_rect := Rect2(origin + Vector2(14, 64), Vector2(240, 16))
+	draw_rect(bar_rect, Color(0.1, 0.13, 0.22, 0.92), true)
+	var ratio := 0.0
+	if mission_target > 0.0:
+		ratio = clampf(mission_progress / mission_target, 0.0, 1.0)
+	draw_rect(Rect2(bar_rect.position, Vector2(bar_rect.size.x * ratio, bar_rect.size.y)), Color("f6c945"), true)
+	var progress_text := "%d / %d" % [int(round(mission_progress)), int(round(maxf(mission_target, 0.0)))]
+	if mission_target > 10.0:
+		progress_text = "%d / %d" % [int(mission_progress), int(maxf(mission_target, 0.0))]
+	draw_string(ThemeDB.fallback_font, origin + Vector2(14, 100), progress_text, HORIZONTAL_ALIGNMENT_LEFT, 110, 13, Color.WHITE)
+	draw_string(ThemeDB.fallback_font, origin + Vector2(124, 100), "REP %03d" % rep_points, HORIZONTAL_ALIGNMENT_LEFT, 70, 13, Color("43f6a6"))
+	draw_string(ThemeDB.fallback_font, origin + Vector2(184, 100), "MIS %02d" % missions_done, HORIZONTAL_ALIGNMENT_LEFT, 70, 13, Color("19d7ff"))
