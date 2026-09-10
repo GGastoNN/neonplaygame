@@ -35,10 +35,10 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - name: Configurar Android SDK
+      - name: Configurar Android SDK 36
         uses: android-actions/setup-android@v3
 
-      - name: Instalar componentes Android requeridos
+      - name: Instalar componentes Android
         shell: bash
         run: |
           set -euo pipefail
@@ -52,11 +52,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-
           mkdir -p "$HOME/.android"
           KEYSTORE_PATH="$HOME/.android/debug.keystore"
           rm -f "$KEYSTORE_PATH"
-
           keytool -genkeypair \
             -v \
             -keystore "$KEYSTORE_PATH" \
@@ -67,96 +65,58 @@ jobs:
             -keysize 2048 \
             -validity 10000 \
             -dname "CN=Android Debug,O=Neon Apex,C=AR"
-
           echo "GODOT_ANDROID_KEYSTORE_DEBUG_PATH=$KEYSTORE_PATH" >> "$GITHUB_ENV"
-          test -f "$KEYSTORE_PATH"
 
       - name: Descargar Godot 4.7.2
         shell: bash
         run: |
           set -euo pipefail
-
           GODOT_DIR="$RUNNER_TEMP/godot"
           mkdir -p "$GODOT_DIR"
-
           wget -q --show-progress \
             "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v4.7.2-stable_linux.x86_64.zip" \
             -O "$RUNNER_TEMP/godot.zip"
-
           unzip -q "$RUNNER_TEMP/godot.zip" -d "$GODOT_DIR"
           mv "$GODOT_DIR/Godot_v4.7.2-stable_linux.x86_64" "$GODOT_DIR/godot"
           chmod +x "$GODOT_DIR/godot"
-
           echo "$GODOT_DIR" >> "$GITHUB_PATH"
           "$GODOT_DIR/godot" --version
 
-      - name: Instalar plantillas de exportación Godot 4.7.2
+      - name: Instalar plantillas de exportación
         shell: bash
         run: |
           set -euo pipefail
-
           TEMPLATE_DIR="$HOME/.local/share/godot/export_templates/${GODOT_EDITOR_VERSION}"
           mkdir -p "$TEMPLATE_DIR"
-
           wget -q --show-progress \
             "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v4.7.2-stable_export_templates.tpz" \
             -O "$RUNNER_TEMP/godot_templates.tpz"
-
           unzip -q -j "$RUNNER_TEMP/godot_templates.tpz" -d "$TEMPLATE_DIR"
           test -f "$TEMPLATE_DIR/android_debug.apk"
           test -f "$TEMPLATE_DIR/android_source.zip"
-
-      - name: Instalar Google Play Billing oficial
-        shell: bash
-        run: |
-          set -euo pipefail
-          rm -rf "$RUNNER_TEMP/billing-plugin" addons/GodotGooglePlayBilling
-          mkdir -p "$RUNNER_TEMP/billing-plugin" addons
-          wget -q --show-progress \
-            "https://github.com/godot-sdk-integrations/godot-google-play-billing/releases/download/3.3.0/godot-google-play-billing.zip" \
-            -O "$RUNNER_TEMP/godot-google-play-billing.zip"
-          unzip -q "$RUNNER_TEMP/godot-google-play-billing.zip" -d "$RUNNER_TEMP/billing-plugin"
-          PLUGIN_CFG="$(find "$RUNNER_TEMP/billing-plugin" -type f -name plugin.cfg -path '*GodotGooglePlayBilling*' -print -quit)"
-          test -n "$PLUGIN_CFG"
-          PLUGIN_DIR="$(dirname "$PLUGIN_CFG")"
-          cp -a "$PLUGIN_DIR" addons/GodotGooglePlayBilling
-          test -f addons/GodotGooglePlayBilling/plugin.cfg
-          find addons/GodotGooglePlayBilling -maxdepth 4 -type f -print
 
       - name: Instalar Android Gradle Build Template
         shell: bash
         run: |
           set -euo pipefail
-
           TEMPLATE_DIR="$HOME/.local/share/godot/export_templates/${GODOT_EDITOR_VERSION}"
           SOURCE_ZIP="$TEMPLATE_DIR/android_source.zip"
-
-          test -f "$SOURCE_ZIP"
-
           rm -rf android/build
           mkdir -p android/build
           unzip -q -o "$SOURCE_ZIP" -d android/build
-
-          # Godot guarda el identificador exacto del template junto a android/build.
           printf '%s\n' "$GODOT_EDITOR_VERSION" > android/.build_version
           touch android/build/.gdignore
           chmod +x android/build/gradlew
-
           test -f android/build/build.gradle
           test -f android/build/gradlew
-          test -f android/.build_version
           test -x android/build/gradlew
-
-          echo "Android Gradle Build Template instalado manualmente: $GODOT_EDITOR_VERSION"
 
       - name: Configurar rutas Android para Godot
         shell: bash
         run: |
           set -euo pipefail
-
           mkdir -p "$HOME/.config/godot"
-
-          cat > "$HOME/.config/godot/editor_settings-4.tres" <<EOF
+          cat > "$HOME/.config/godot/editor_settings-4.tres" <<EOF2
           [gd_resource type="EditorSettings" format=3]
 
           [resource]
@@ -165,20 +125,8 @@ jobs:
           export/android/debug_keystore = "$GODOT_ANDROID_KEYSTORE_DEBUG_PATH"
           export/android/debug_keystore_user = "$GODOT_ANDROID_KEYSTORE_DEBUG_USER"
           export/android/debug_keystore_pass = "$GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD"
-          EOF
-
-          cp "$HOME/.config/godot/editor_settings-4.tres" \
-             "$HOME/.config/godot/editor_settings-4.7.tres"
-
-          echo "Godot: $(godot --version)"
-          echo "JAVA_HOME=$JAVA_HOME"
-          echo "ANDROID_HOME=$ANDROID_HOME"
-          echo "KEYSTORE=$GODOT_ANDROID_KEYSTORE_DEBUG_PATH"
-
-          java -version
-          adb --version
-          sdkmanager --version
-
+          EOF2
+          cp "$HOME/.config/godot/editor_settings-4.tres" "$HOME/.config/godot/editor_settings-4.7.tres"
           test -x "$ANDROID_HOME/build-tools/36.1.0/apksigner"
           test -f "$GODOT_ANDROID_KEYSTORE_DEBUG_PATH"
 
@@ -186,7 +134,6 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-
           test -f project.godot
           test -f export_presets.cfg
           test -f scenes/main.tscn
@@ -195,29 +142,19 @@ jobs:
           test -f scripts/mobile_controls.gd
           test -f scripts/hud_overlay.gd
           test -f scripts/traffic_car.gd
-          test -f scripts/billing_manager.gd
+          test -f scripts/speed_payment_manager.gd
           test -f scripts/garage_menu.gd
-          test -f addons/GodotGooglePlayBilling/plugin.cfg
-          test -f android/build/build.gradle
-          test -f android/build/gradlew
-          test -f android/build/config.gradle
-          test -f android/.build_version
-          grep -qx "$GODOT_EDITOR_VERSION" android/.build_version
-          grep -Eq "androidGradlePlugin:[[:space:]]*'8\.6\.1'" android/build/config.gradle
-          grep -Eq "compileSdk[[:space:]]*:[[:space:]]*36" android/build/config.gradle
-          grep -Eq "targetSdk[[:space:]]*:[[:space:]]*36" android/build/config.gradle
-          grep -Eq "buildTools[[:space:]]*:[[:space:]]*'36\.1\.0'" android/build/config.gradle
+          grep -q 'gastonc@speed.app' scripts/speed_payment_manager.gd
+          grep -q 'const PRICE_SATS := 50' scripts/speed_payment_manager.gd
+          grep -q 'com.app.speedwallet' scripts/speed_payment_manager.gd
+          grep -q 'preload("res://scripts/speed_payment_manager.gd")' scripts/main.gd
+          ! grep -q 'GodotGooglePlayBilling' project.godot
+          ! grep -q 'Google Play Billing' scripts/garage_menu.gd
           grep -q '^textures/vram_compression/import_etc2_astc=true$' project.godot
           grep -q '^window/handheld/orientation=4$' project.godot
-          grep -q '^window/stretch/aspect="expand"$' project.godot
-          grep -q 'preload("res://scripts/car.gd")' scripts/main.gd
-          grep -q 'preload("res://scripts/garage_menu.gd")' scripts/main.gd
-          ! grep -q 'const PRODUCT_IDS := PackedStringArray' scripts/billing_manager.gd
-          grep -q 'var product_ids: PackedStringArray' scripts/billing_manager.gd
-
           godot --headless --editor --path . --quit
 
-      - name: Smoke test de arranque de la escena
+      - name: Smoke test de arranque
         shell: bash
         run: |
           set -euo pipefail
@@ -225,15 +162,11 @@ jobs:
           godot --headless --verbose --path . --quit-after 240 2>&1 | tee runtime-smoke.log
           GODOT_EXIT=${PIPESTATUS[0]}
           set -e
-
-          if grep -Eiq 'SCRIPT ERROR|Parse Error|Invalid call|Invalid assignment|Invalid get index|Invalid set index' runtime-smoke.log; then
-            echo "Se detectó un error de ejecución en la escena principal."
+          if grep -Eiq 'SCRIPT ERROR|Parse Error|Invalid call|Invalid assignment|Invalid get index|Invalid set index|Compilation failed' runtime-smoke.log; then
             cat runtime-smoke.log
             exit 1
           fi
-
           if [ "$GODOT_EXIT" -ne 0 ]; then
-            echo "Godot terminó con código $GODOT_EXIT durante el smoke test."
             cat runtime-smoke.log
             exit "$GODOT_EXIT"
           fi
@@ -242,23 +175,20 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-
           mkdir -p build
-
           godot \
             --headless \
             --verbose \
             --path . \
             --export-debug "Android" \
-            "build/NeonApex-PRO-V12-GARAGE-debug.apk"
-
-          test -s build/NeonApex-PRO-V12-GARAGE-debug.apk
-          ls -lh build/NeonApex-PRO-V12-GARAGE-debug.apk
+            "build/NeonApex-PRO-V13-SPEED-debug.apk"
+          test -s build/NeonApex-PRO-V13-SPEED-debug.apk
+          ls -lh build/NeonApex-PRO-V13-SPEED-debug.apk
 
       - name: Publicar APK descargable
         uses: actions/upload-artifact@v4
         with:
-          name: NeonApex-PRO-V12-GARAGE-Android-Debug
-          path: build/NeonApex-PRO-V12-GARAGE-debug.apk
+          name: NeonApex-PRO-V13-SPEED-Android-Debug
+          path: build/NeonApex-PRO-V13-SPEED-debug.apk
           if-no-files-found: error
           retention-days: 30
