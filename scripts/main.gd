@@ -6,7 +6,7 @@ const CarScript = preload("res://scripts/car.gd")
 const HUDScript = preload("res://scripts/hud_overlay.gd")
 const MobileControlsScript = preload("res://scripts/mobile_controls.gd")
 const TrafficCarScript = preload("res://scripts/traffic_car.gd")
-const BillingManagerScript = preload("res://scripts/billing_manager.gd")
+const SpeedPaymentManagerScript = preload("res://scripts/speed_payment_manager.gd")
 const GarageMenuScript = preload("res://scripts/garage_menu.gd")
 
 var car
@@ -25,7 +25,7 @@ var pickup_count := 0
 var mobile := OS.has_feature("mobile")
 var rng := RandomNumberGenerator.new()
 var world_ready := false
-var billing_manager
+var payment_manager
 var garage_menu
 var garage_button: Button
 
@@ -482,9 +482,9 @@ func _build_hud() -> void:
 	hud.add_child(hud_overlay)
 	hud_overlay.set_pickups(pickup_count)
 
-	billing_manager = BillingManagerScript.new()
-	hud.add_child(billing_manager)
-	billing_manager.entitlement_changed.connect(_on_entitlement_changed)
+	payment_manager = SpeedPaymentManagerScript.new()
+	hud.add_child(payment_manager)
+	payment_manager.entitlement_changed.connect(_on_entitlement_changed)
 
 	garage_button = Button.new()
 	garage_button.text = "GARAGE"
@@ -496,12 +496,12 @@ func _build_hud() -> void:
 
 	garage_menu = GarageMenuScript.new()
 	garage_menu.z_index = 100
-	garage_menu.setup(billing_manager)
+	garage_menu.setup(payment_manager)
 	garage_menu.purchase_requested.connect(_on_purchase_requested)
-	garage_menu.restore_requested.connect(_on_restore_requested)
+	garage_menu.verify_requested.connect(_on_verify_requested)
 	garage_menu.closed.connect(_on_garage_closed)
 	hud.add_child(garage_menu)
-	car.apply_purchased_upgrades(billing_manager.owned)
+	car.apply_purchased_upgrades(payment_manager.owned)
 
 	mobile_controls = MobileControlsScript.new()
 	mobile_controls.position = Vector2.ZERO
@@ -529,16 +529,16 @@ func _on_garage_closed() -> void:
 		car.set_physics_process(true)
 
 func _on_purchase_requested(product_id: String) -> void:
-	if billing_manager != null:
-		billing_manager.purchase(product_id)
+	if payment_manager != null:
+		payment_manager.purchase(product_id)
 
-func _on_restore_requested() -> void:
-	if billing_manager != null:
-		billing_manager.restore_purchases()
+func _on_verify_requested() -> void:
+	if payment_manager != null:
+		payment_manager.verify_pending_payment()
 
 func _on_entitlement_changed(_product_id: String, _owned: bool) -> void:
-	if car != null and billing_manager != null:
-		car.apply_purchased_upgrades(billing_manager.owned)
+	if car != null and payment_manager != null:
+		car.apply_purchased_upgrades(payment_manager.owned)
 	if hud_overlay != null:
 		hud_overlay.flash("GARAGE // MEJORA INSTALADA", 2.0)
 
