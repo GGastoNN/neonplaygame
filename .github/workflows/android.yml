@@ -17,11 +17,11 @@ permissions:
 jobs:
   build-android:
     runs-on: ubuntu-22.04
-    timeout-minutes: 40
+    timeout-minutes: 60
 
     env:
-      GODOT_VERSION: "4.3-stable"
-      GODOT_EDITOR_VERSION: "4.3.stable"
+      GODOT_VERSION: "4.7.2-stable"
+      GODOT_EDITOR_VERSION: "4.7.2.stable"
       GODOT_ANDROID_KEYSTORE_DEBUG_USER: androiddebugkey
       GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD: android
 
@@ -45,8 +45,7 @@ jobs:
           yes | sdkmanager --licenses >/dev/null || true
           sdkmanager \
             "platform-tools" \
-            "build-tools;34.0.0" \
-            "platforms;android-34" \
+            "build-tools;36.1.0" \
             "platforms;android-36"
 
       - name: Crear debug keystore
@@ -72,7 +71,7 @@ jobs:
           echo "GODOT_ANDROID_KEYSTORE_DEBUG_PATH=$KEYSTORE_PATH" >> "$GITHUB_ENV"
           test -f "$KEYSTORE_PATH"
 
-      - name: Descargar Godot 4.3
+      - name: Descargar Godot 4.7.2
         shell: bash
         run: |
           set -euo pipefail
@@ -81,17 +80,17 @@ jobs:
           mkdir -p "$GODOT_DIR"
 
           wget -q --show-progress \
-            "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v4.3-stable_linux.x86_64.zip" \
+            "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v4.7.2-stable_linux.x86_64.zip" \
             -O "$RUNNER_TEMP/godot.zip"
 
           unzip -q "$RUNNER_TEMP/godot.zip" -d "$GODOT_DIR"
-          mv "$GODOT_DIR/Godot_v4.3-stable_linux.x86_64" "$GODOT_DIR/godot"
+          mv "$GODOT_DIR/Godot_v4.7.2-stable_linux.x86_64" "$GODOT_DIR/godot"
           chmod +x "$GODOT_DIR/godot"
 
           echo "$GODOT_DIR" >> "$GITHUB_PATH"
           "$GODOT_DIR/godot" --version
 
-      - name: Instalar plantillas de exportación Godot 4.3
+      - name: Instalar plantillas de exportación Godot 4.7.2
         shell: bash
         run: |
           set -euo pipefail
@@ -100,7 +99,7 @@ jobs:
           mkdir -p "$TEMPLATE_DIR"
 
           wget -q --show-progress \
-            "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v4.3-stable_export_templates.tpz" \
+            "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v4.7.2-stable_export_templates.tpz" \
             -O "$RUNNER_TEMP/godot_templates.tpz"
 
           unzip -q -j "$RUNNER_TEMP/godot_templates.tpz" -d "$TEMPLATE_DIR"
@@ -138,7 +137,7 @@ jobs:
           mkdir -p android/build
           unzip -q -o "$SOURCE_ZIP" -d android/build
 
-          # Godot 4.3 guarda el identificador del template junto a android/build.
+          # Godot guarda el identificador exacto del template junto a android/build.
           printf '%s\n' "$GODOT_EDITOR_VERSION" > android/.build_version
           touch android/build/.gdignore
           chmod +x android/build/gradlew
@@ -169,7 +168,7 @@ jobs:
           EOF
 
           cp "$HOME/.config/godot/editor_settings-4.tres" \
-             "$HOME/.config/godot/editor_settings-4.3.tres"
+             "$HOME/.config/godot/editor_settings-4.7.tres"
 
           echo "Godot: $(godot --version)"
           echo "JAVA_HOME=$JAVA_HOME"
@@ -180,7 +179,7 @@ jobs:
           adb --version
           sdkmanager --version
 
-          test -x "$ANDROID_HOME/build-tools/34.0.0/apksigner"
+          test -x "$ANDROID_HOME/build-tools/36.1.0/apksigner"
           test -f "$GODOT_ANDROID_KEYSTORE_DEBUG_PATH"
 
       - name: Validar proyecto e importar recursos
@@ -201,8 +200,13 @@ jobs:
           test -f addons/GodotGooglePlayBilling/plugin.cfg
           test -f android/build/build.gradle
           test -f android/build/gradlew
+          test -f android/build/config.gradle
           test -f android/.build_version
           grep -qx "$GODOT_EDITOR_VERSION" android/.build_version
+          grep -Eq "androidGradlePlugin:[[:space:]]*'8\.6\.1'" android/build/config.gradle
+          grep -Eq "compileSdk[[:space:]]*:[[:space:]]*36" android/build/config.gradle
+          grep -Eq "targetSdk[[:space:]]*:[[:space:]]*36" android/build/config.gradle
+          grep -Eq "buildTools[[:space:]]*:[[:space:]]*'36\.1\.0'" android/build/config.gradle
           grep -q '^textures/vram_compression/import_etc2_astc=true$' project.godot
           grep -q '^window/handheld/orientation=4$' project.godot
           grep -q '^window/stretch/aspect="expand"$' project.godot
@@ -246,15 +250,15 @@ jobs:
             --verbose \
             --path . \
             --export-debug "Android" \
-            "build/NeonApex-PRO-V11-GARAGE-debug.apk"
+            "build/NeonApex-PRO-V12-GARAGE-debug.apk"
 
-          test -s build/NeonApex-PRO-V11-GARAGE-debug.apk
-          ls -lh build/NeonApex-PRO-V11-GARAGE-debug.apk
+          test -s build/NeonApex-PRO-V12-GARAGE-debug.apk
+          ls -lh build/NeonApex-PRO-V12-GARAGE-debug.apk
 
       - name: Publicar APK descargable
         uses: actions/upload-artifact@v4
         with:
-          name: NeonApex-PRO-V11-GARAGE-Android-Debug
-          path: build/NeonApex-PRO-V11-GARAGE-debug.apk
+          name: NeonApex-PRO-V12-GARAGE-Android-Debug
+          path: build/NeonApex-PRO-V12-GARAGE-debug.apk
           if-no-files-found: error
           retention-days: 30
