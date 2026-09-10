@@ -5,7 +5,10 @@ signal products_changed
 signal entitlement_changed(product_id: String, owned: bool)
 signal wallet_opened(product_id: String)
 
-const LIGHTNING_ADDRESS := "gastonc@speed.app"
+# El destino no se muestra ni se conserva como texto plano en los recursos del juego.
+# Esto evita exposición casual; para secreto criptográfico se requiere un backend.
+const PAYEE_USER_B64 := "Z2FzdG9uYw=="
+const PAYEE_DOMAIN_B64 := "c3BlZWQuYXBw"
 const PRICE_SATS := 50
 const PRICE_MSATS := PRICE_SATS * 1000
 const SPEED_ANDROID_PACKAGE := "com.app.speedwallet"
@@ -61,7 +64,8 @@ func purchase(product_id: String) -> void:
 	_save_pending_payment()
 	products_changed.emit()
 
-	var parts := LIGHTNING_ADDRESS.split("@", false, 1)
+	var lightning_address := "%s@%s" % [Marshalls.base64_to_utf8(PAYEE_USER_B64), Marshalls.base64_to_utf8(PAYEE_DOMAIN_B64)]
+	var parts := lightning_address.split("@", false, 1)
 	if parts.size() != 2:
 		_set_status("Lightning Address inválida")
 		return
@@ -95,9 +99,6 @@ func is_pending(product_id: String) -> bool:
 
 func get_price(_product_id: String) -> String:
 	return "%d SATS" % PRICE_SATS
-
-func get_lightning_address() -> String:
-	return LIGHTNING_ADDRESS
 
 func _on_request_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
 	if result != HTTPRequest.RESULT_SUCCESS:

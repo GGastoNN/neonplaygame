@@ -40,6 +40,9 @@ var mission_checkpoint_base := 0
 var mission_pickups_base := 0
 var mission_speed_hold := 0.0
 var mission_drift_hold := 0.0
+var mission_airtime := 0.0
+var mission_clean_distance := 0.0
+var mission_collision_base := 0
 var distance_total := 0.0
 var last_player_position := Vector3.ZERO
 var current_speed_kph := 0.0
@@ -48,7 +51,7 @@ var collision_count := 0
 
 const ROAD_COORDS := [-120.0, 0.0, 120.0]
 const WORLD_SIZE := 520.0
-const MISSION_ROTATION := ["speed_run", "pickup_hunt", "drift_trial", "checkpoint_dash", "distance_cruise"]
+const MISSION_ROTATION := ["speed_run", "pickup_hunt", "jump_trial", "drift_trial", "clean_run", "checkpoint_dash", "distance_cruise"]
 
 func _ready() -> void:
 	_configure_landscape_mode()
@@ -74,6 +77,7 @@ func _ready() -> void:
 
 	_set_loading_message("BOOT // ILUMINANDO DISTRITOS")
 	await _build_street_details()
+	_build_ramps_and_challenges()
 
 	_build_stars_and_moon()
 	_build_route()
@@ -341,6 +345,57 @@ func _build_street_details() -> void:
 			light.omni_range = 18.0
 			light.shadow_enabled = false
 			add_child(light)
+
+func _build_ramps_and_challenges() -> void:
+	# Rampas colocadas en tramos rectos, fuera de cruces y de la ruta del tráfico.
+	var ramp_specs: Array[Dictionary] = [
+		{"pos":Vector3(-7.0, 0.72, -62.0), "yaw":0.0, "color":Color("19d7ff")},
+		{"pos":Vector3(62.0, 0.72, 7.0), "yaw":90.0, "color":Color("ff2bd6")},
+		{"pos":Vector3(7.0, 0.72, 178.0), "yaw":180.0, "color":Color("43f6a6")},
+		{"pos":Vector3(-178.0, 0.72, -7.0), "yaw":-90.0, "color":Color("f6c945")}
+	]
+	for spec in ramp_specs:
+		_build_ramp(Vector3(spec["pos"]), float(spec["yaw"]), Color(spec["color"]))
+
+func _build_ramp(pos: Vector3, yaw_degrees: float, accent: Color) -> void:
+	var ramp := StaticBody3D.new()
+	ramp.position = pos
+	ramp.rotation_degrees = Vector3(-11.5, yaw_degrees, 0.0)
+	ramp.collision_layer = 1
+	ramp.collision_mask = 3
+
+	var shape_node := CollisionShape3D.new()
+	var shape := BoxShape3D.new()
+	shape.size = Vector3(5.8, 0.34, 11.5)
+	shape_node.shape = shape
+	ramp.add_child(shape_node)
+
+	var deck := MeshInstance3D.new()
+	var deck_mesh := BoxMesh.new()
+	deck_mesh.size = shape.size
+	deck.mesh = deck_mesh
+	deck.material_override = _material(Color("263344"), 0.0, 0.32, 0.48)
+	ramp.add_child(deck)
+	add_child(ramp)
+
+	var marking := _emissive_material(accent, 2.8)
+	for lane in [-2.1, 0.0, 2.1]:
+		var stripe := MeshInstance3D.new()
+		var stripe_mesh := BoxMesh.new()
+		stripe_mesh.size = Vector3(0.18, 0.04, 9.8)
+		stripe.mesh = stripe_mesh
+		stripe.position = Vector3(lane, 0.2, 0.0)
+		stripe.material_override = marking
+		ramp.add_child(stripe)
+
+	var label := Label3D.new()
+	label.text = "JUMP ZONE"
+	label.position = pos + Vector3(0.0, 3.0, 0.0)
+	label.rotation_degrees.y = yaw_degrees
+	label.font_size = 46
+	label.pixel_size = 0.022
+	label.modulate = accent
+	add_child(label)
 
 func _build_route() -> void:
 	var route_data: Array[Dictionary] = [
@@ -620,6 +675,9 @@ func _start_next_mission() -> void:
 	mission_progress = 0.0
 	mission_speed_hold = 0.0
 	mission_drift_hold = 0.0
+	mission_airtime = 0.0
+	mission_clean_distance = 0.0
+	mission_collision_base = collision_count
 	mission_checkpoint_base = checkpoint_index
 	mission_pickups_base = pickup_count
 	match mission_type:
@@ -635,6 +693,14 @@ func _start_next_mission() -> void:
 			mission_name = "MISION // DRIFT"
 			mission_desc = "Derrapa 5 segundos acumulados"
 			mission_target = 5.0
+		"jump_trial":
+			mission_name = "MISION // AIR TIME"
+			mission_desc = "Acumula 2 segundos en el aire usando rampas"
+			mission_target = 2.0
+		"clean_run":
+			mission_name = "MISION // CLEAN RUN"
+			mission_desc = "Recorre 700 m sin impactos"
+			mission_target = 700.0
 		"checkpoint_dash":
 			mission_name = "MISION // CHECKPOINT"
 			mission_desc = "Cruza 4 checkpoints"
@@ -661,6 +727,19 @@ func _update_mission_progress(delta: float) -> void:
 			if current_drifting and current_speed_kph > 45.0:
 				mission_drift_hold += delta
 			mission_progress = mission_drift_hold
+		"jump_trial":
+			if not car.is_on_floor() and car.global_position.y > 1.8:
+				mission_airtime += delta
+			mission_progress = mission_airtime
+		"clean_run":
+			if collision_count > mission_collision_base:
+				mission_collision_base = collision_count
+				mission_clean_distance = 0.0
+				if hud_overlay != null:
+					hud_overlay.flash("CLEAN RUN // IMPACTO, REINICIANDO", 1.8)
+			else:
+				mission_clean_distance += car.velocity.length() * delta
+			mission_progress = mission_clean_distance
 		"checkpoint_dash":
 			mission_progress = float(checkpoint_index - mission_checkpoint_base)
 		"distance_cruise":

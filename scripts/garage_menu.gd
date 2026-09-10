@@ -83,7 +83,7 @@ func _build_ui() -> void:
 	root.add_child(sub)
 
 	wallet_label = Label.new()
-	wallet_label.text = "Destino: gastonc@speed.app"
+	wallet_label.text = "Destino protegido • pago seguro vía Lightning"
 	wallet_label.modulate = Color("43f6a6")
 	root.add_child(wallet_label)
 
@@ -159,7 +159,7 @@ func _refresh() -> void:
 	if payment_manager == null:
 		return
 	if wallet_label != null:
-		wallet_label.text = "Destino Lightning: %s" % payment_manager.get_lightning_address()
+		wallet_label.text = "Destino protegido • pago seguro vía Lightning"
 	for item in CATALOG:
 		var product_id := String(item["id"])
 		var button: Button = cards.get(product_id)

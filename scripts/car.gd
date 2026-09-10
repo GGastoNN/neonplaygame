@@ -33,6 +33,7 @@ var base_acceleration := 31.0
 var base_steering_response := 5.2
 var base_steering_speed := 2.25
 var base_grip := 8.5
+var airborne_time := 0.0
 
 func _ready() -> void:
 	collision_layer = 1
@@ -91,7 +92,9 @@ func _physics_process(delta: float) -> void:
 		else:
 			speed = move_toward(speed, -reverse_speed, acceleration * 0.55 * brake * delta)
 	else:
-		speed = move_toward(speed, 0.0, 6.5 * delta)
+		# Rodadura y resistencia aerodinámica progresivas.
+		var drag := 4.4 + absf(speed) * 0.045
+		speed = move_toward(speed, 0.0, drag * delta)
 
 	var speed_ratio := clampf(absf(speed) / max_speed, 0.0, 1.35)
 	var low_speed_help := lerpf(0.55, 1.0, clampf(absf(speed) / 12.0, 0.0, 1.0))
@@ -109,8 +112,15 @@ func _physics_process(delta: float) -> void:
 	velocity.z = lerpf(velocity.z, desired.z, minf(1.0, current_grip * delta))
 
 	if not is_on_floor():
+		airborne_time += delta
 		velocity.y -= 18.0 * delta
+		# El control en el aire existe, pero es deliberadamente limitado.
+		velocity.x = lerpf(velocity.x, desired.x, minf(1.0, 0.55 * delta))
+		velocity.z = lerpf(velocity.z, desired.z, minf(1.0, 0.55 * delta))
 	else:
+		if airborne_time > 0.32:
+			collision_event.emit(minf(30.0, airborne_time * 12.0))
+		airborne_time = 0.0
 		velocity.y = -0.55
 	move_and_slide()
 
