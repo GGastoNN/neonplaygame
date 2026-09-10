@@ -17,12 +17,85 @@ var mission_progress := 0.0
 var mission_target := 1.0
 var rep_points := 0
 var missions_done := 0
+var intro_backdrop: ColorRect
+var intro_panel: PanelContainer
+var intro_title: Label
+var intro_subtitle: Label
+var intro_line: ColorRect
+var intro_tween: Tween
 
 func _ready() -> void:
 	position = Vector2.ZERO
 	size = get_viewport_rect().size
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_build_circuit_intro()
 	queue_redraw()
+
+func _build_circuit_intro() -> void:
+	intro_backdrop = ColorRect.new()
+	intro_backdrop.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	intro_backdrop.color = Color(0.005, 0.01, 0.04, 0.72)
+	intro_backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	intro_backdrop.visible = false
+	add_child(intro_backdrop)
+	intro_panel = PanelContainer.new()
+	intro_panel.set_anchors_preset(Control.PRESET_CENTER)
+	intro_panel.position = Vector2(-310, -92)
+	intro_panel.size = Vector2(620, 184)
+	intro_panel.pivot_offset = intro_panel.size * 0.5
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.012, 0.025, 0.075, 0.97)
+	style.border_color = Color("19d7ff")
+	style.set_border_width_all(3)
+	style.set_corner_radius_all(18)
+	style.shadow_color = Color(0.0, 0.75, 1.0, 0.28)
+	style.shadow_size = 20
+	intro_panel.add_theme_stylebox_override("panel", style)
+	intro_backdrop.add_child(intro_panel)
+	var box := VBoxContainer.new()
+	box.alignment = BoxContainer.ALIGNMENT_CENTER
+	box.add_theme_constant_override("separation", 10)
+	intro_panel.add_child(box)
+	var eyebrow := Label.new()
+	eyebrow.text = "NEON APEX // EVENT SYSTEM"
+	eyebrow.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	eyebrow.modulate = Color(0.55, 0.82, 1.0)
+	eyebrow.add_theme_font_size_override("font_size", 14)
+	box.add_child(eyebrow)
+	intro_title = Label.new()
+	intro_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	intro_title.add_theme_font_size_override("font_size", 38)
+	box.add_child(intro_title)
+	intro_subtitle = Label.new()
+	intro_subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	intro_subtitle.add_theme_font_size_override("font_size", 17)
+	intro_subtitle.modulate = Color(0.75, 0.86, 1.0)
+	box.add_child(intro_subtitle)
+	intro_line = ColorRect.new()
+	intro_line.custom_minimum_size = Vector2(0, 5)
+	box.add_child(intro_line)
+
+func play_circuit_intro(circuit_name: String, circuit_desc: String, accent: Color) -> void:
+	if intro_tween != null and intro_tween.is_valid():
+		intro_tween.kill()
+	intro_title.text = circuit_name
+	intro_subtitle.text = circuit_desc
+	intro_title.modulate = accent
+	intro_line.color = accent
+	intro_backdrop.visible = true
+	intro_backdrop.modulate = Color(1, 1, 1, 0)
+	intro_panel.scale = Vector2(0.78, 0.78)
+	intro_line.scale.x = 0.02
+	intro_tween = create_tween().set_parallel(false)
+	intro_tween.set_trans(Tween.TRANS_QUINT).set_ease(Tween.EASE_OUT)
+	intro_tween.tween_property(intro_backdrop, "modulate:a", 1.0, 0.18)
+	intro_tween.parallel().tween_property(intro_panel, "scale", Vector2.ONE, 0.42)
+	intro_tween.parallel().tween_property(intro_line, "scale:x", 1.0, 0.62)
+	intro_tween.tween_interval(1.15)
+	intro_tween.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+	intro_tween.tween_property(intro_panel, "scale", Vector2(1.06, 1.06), 0.16)
+	intro_tween.parallel().tween_property(intro_backdrop, "modulate:a", 0.0, 0.24)
+	intro_tween.tween_callback(func(): intro_backdrop.visible = false)
 
 func _process(delta: float) -> void:
 	var viewport_size := get_viewport_rect().size

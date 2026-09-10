@@ -48,10 +48,16 @@ var last_player_position := Vector3.ZERO
 var current_speed_kph := 0.0
 var current_drifting := false
 var collision_count := 0
+var circuit_rotation_index := 0
 
 const ROAD_COORDS := [-120.0, 0.0, 120.0]
 const WORLD_SIZE := 520.0
 const MISSION_ROTATION := ["speed_run", "pickup_hunt", "jump_trial", "drift_trial", "clean_run", "checkpoint_dash", "distance_cruise"]
+const CIRCUIT_PROFILES: Array[Dictionary] = [
+	{"name":"NEON SPRINT", "desc":"10 CHECKPOINTS // HIGH SPEED", "color":Color("19d7ff")},
+	{"name":"DOWNTOWN TECHNICAL", "desc":"PRECISION // LATE BRAKING", "color":Color("ff2bd6")},
+	{"name":"RAMP DISTRICT", "desc":"AIR TIME // CONTROL", "color":Color("43f6a6")}
+]
 
 func _ready() -> void:
 	_configure_landscape_mode()
@@ -451,7 +457,9 @@ func _checkpoint_entered(body: Node, area: Area3D) -> void:
 		race_started = true
 		race_time = 0.0
 		if hud_overlay != null:
-			hud_overlay.flash("RACE START // GO!",1.4)
+			var profile: Dictionary = CIRCUIT_PROFILES[circuit_rotation_index % CIRCUIT_PROFILES.size()]
+			hud_overlay.play_circuit_intro(String(profile["name"]), String(profile["desc"]), Color(profile["color"]))
+			hud_overlay.flash("RACE START // GO!", 2.0)
 	checkpoint_index += 1
 	area.visible = false
 	area.monitoring = false
@@ -461,6 +469,7 @@ func _checkpoint_entered(body: Node, area: Area3D) -> void:
 			best_time = race_time
 		if hud_overlay != null:
 			hud_overlay.flash("FINISH // %.2f SEC" % race_time,4.0)
+		circuit_rotation_index = (circuit_rotation_index + 1) % CIRCUIT_PROFILES.size()
 		await get_tree().create_timer(5.0).timeout
 		checkpoint_index = 0
 		for cp in checkpoints:
