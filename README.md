@@ -1,8 +1,8 @@
-# Neon Apex: Open Roads PRO V15 — Rampas, Desafíos y Ciudad Viva
+# Neon Apex: Open Roads PRO V16 — Circuitos y Performance Lab
 
 Juego arcade de conducción nocturna desarrollado en Godot para Android.
 
-## V15
+## V16
 
 - Garage Lightning con **Speed Wallet**.
 - Cada mejora cuesta **50 sats**.
@@ -32,11 +32,11 @@ GitHub Actions usa Godot 4.7.2, Java 17 y Android API 36.
 
 APK esperado:
 
-`NeonApex-PRO-V15-RAMPS-CHALLENGES-debug.apk`
+`NeonApex-PRO-V16-CIRCUITS-GARAGE-debug.apk`
 
 Artifact:
 
-`NeonApex-PRO-V15-RAMPS-CHALLENGES-Android-Debug`
+`NeonApex-PRO-V16-CIRCUITS-GARAGE-Android-Debug`
 
 ## Nota sobre pagos
 

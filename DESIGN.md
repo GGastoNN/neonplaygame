@@ -1,4 +1,4 @@
-# Neon Apex PRO V15 — Diseño
+# Neon Apex PRO V16 — Diseño
 
 ## Objetivo
 Elevar el juego a una versión más viva y vistosa manteniendo compatibilidad móvil y build simple para GitHub Actions.
@@ -16,3 +16,5 @@ Elevar el juego a una versión más viva y vistosa manteniendo compatibilidad m�
 - Todo el juego sigue siendo procedural y sin depender de assets pesados.
 - Se prioriza estabilidad Android y tiempos de build cortos.
 - El pago Lightning con Speed Wallet se mantiene sin Google Billing.
+- Los circuitos usan presentaciones animadas no bloqueantes al cruzar la salida.
+- El garaje adopta una jerarquía de showroom con ficha técnica y progreso.

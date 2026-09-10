@@ -1,0 +1,11 @@
+V16 // CIRCUITOS Y PERFORMANCE LAB
+
+- Presentación animada al iniciar cada circuito urbano.
+- Tres perfiles visuales rotativos: Neon Sprint, Downtown Technical y Ramp District.
+- Barrido neón, entrada con escala y salida cinematográfica no bloqueante.
+- Garaje rediseñado como Neon Performance Lab.
+- Panel de showroom con ficha POWER, GRIP, NITRO y AERO.
+- Progreso visual de mejoras instaladas.
+- Catálogo profesional en dos columnas con tarjetas renovadas.
+- Animación de apertura del garaje.
+- Conserva rampas, desafíos y privacidad Lightning de V15.
