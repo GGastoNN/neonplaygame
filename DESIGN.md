@@ -1,41 +1,38 @@
-# Neon Apex: Open Roads PRO — Diseño 0.4
+# Neon Apex: Open Roads PRO — V13 Speed Wallet
 
 ## Objetivo
-Arcade de conducción nocturna para Android con controles táctiles multitouch, sensación de velocidad, circuito urbano y estética cyber-neon.
+Arcade de conducción nocturna para Android con controles táctiles multitouch, ciudad cyber-neon, tráfico, carreras y mejoras permanentes del coche adquiridas mediante Bitcoin Lightning.
 
-## Pilares
-1. **Control inmediato**: aceleración y dirección simultáneas, drift accesible y nitro independiente.
-2. **Lectura visual clara**: avenidas anchas, checkpoint gates, minimapa y HUD de carrera.
-3. **Estética neon**: ciudad oscura, bandas emisivas, faros, underglow, carteles, estrellas y luna.
-4. **Rendimiento móvil**: renderer GL Compatibility, geometría procedural simple y estrellas con MultiMesh.
+## Gameplay
+- Control multitáctil real para acelerar, doblar, usar nitro y drift simultáneamente.
+- Doble toque sobre ACELERA activa AUTO; otro toque o FRENO lo cancela.
+- Cámara dinámica con SpringArm, FOV por velocidad e inclinación.
+- Ciudad procedural 3x3, tráfico IA, checkpoints y pickups de nitro.
+- HUD PRO con velocímetro, nitro, minimapa y cronómetro.
 
-## Mundo
-- Malla urbana 3x3 de avenidas principales en X/Z = -120, 0, 120.
-- Edificios procedurales de distintas alturas y colores.
-- Veredas, líneas discontinuas, cruces peatonales, alumbrado, carteles 3D y neón lateral.
-- Tráfico IA recorriendo loops urbanos.
-- Pickups de nitro con respawn.
+## Garage Lightning
+Cinco mejoras permanentes, cada una con precio fijo de 50 sats:
+- Motor Stage 1.
+- Dirección PRO.
+- Tanque Nitro XL.
+- Aero Track Kit.
+- Neon Signature.
 
-## Jugador
-- CharacterBody3D arcade.
-- Dirección suavizada y progresiva.
-- Grip normal y grip reducido durante drift.
-- Nitro con recarga pasiva y pickups.
-- Carrocería procedural multicapa con animación visual de balanceo.
-- Luces delanteras, freno, underglow y llamas de nitro.
+El destino de cobro es la Lightning Address `gastonc@speed.app`.
 
-## Cámara
-- SpringArm3D para evitar clipping.
-- FOV dinámico según velocidad y nitro.
-- Inclinación por dirección y micro shake a alta velocidad.
+### Flujo de pago
+1. El jugador elige una mejora.
+2. El juego resuelve la Lightning Address por LNURL-pay.
+3. Solicita una invoice BOLT11 por exactamente 50 sats.
+4. En Android intenta abrir Speed Wallet directamente con esa invoice.
+5. La mejora solo se desbloquea cuando existe una confirmación verificable del pago.
 
-## HUD
-- Velocímetro analógico/digital.
-- Nitro segmentado.
-- Minimapa de la cuadrícula urbana.
-- Cronómetro y checkpoints.
-- Mensajes de carrera/pickups.
-- Speed streaks a alta velocidad.
+Si el proveedor LNURL no entrega un endpoint de verificación de settlement, la versión de producción debe usar un backend/merchant API/webhook para confirmar el pago de manera segura.
 
-## Mobile Input
-El HUD táctil no usa Button. Registra InputEventScreenTouch e InputEventScreenDrag por índice de dedo, permitiendo múltiples acciones simultáneas.
+## Android
+- Godot 4.7.2 stable.
+- GL Compatibility.
+- Landscape sensor.
+- Android API 36.
+- Internet habilitado para LNURL/Lightning.
+- Sin Google Play Billing en el código del juego.

@@ -1,7 +1,12 @@
-V12 LISTA PARA GITHUB
+NEON APEX PRO V13 — SPEED WALLET
 
-1. Subí TODO el contenido de esta carpeta a la raíz del repositorio.
-2. Reemplazá los archivos existentes.
-3. IMPORTANTE: también subí .github/workflows/build-neon-apex-from-zip.yml para desactivar el workflow viejo.
-4. Ejecutá Actions > Build Android APK.
-5. El artifact esperado es NeonApex-PRO-V12-GARAGE-Android-Debug.
+1. Extrae este ZIP.
+2. Sube TODO su contenido a la raíz de GGastoNN/neonplaygame, reemplazando los archivos existentes.
+3. Asegúrate de reemplazar .github/workflows/android.yml y .github/workflows/build-neon-apex-from-zip.yml.
+4. GitHub Actions iniciará "Build Android APK".
+5. El artifact esperado es NeonApex-PRO-V13-SPEED-Android-Debug.
+
+IMPORTANTE:
+- Cada mejora cuesta 50 sats.
+- Destino: gastonc@speed.app
+- Para producción comercial, revisa SPEED_WALLET_PAGOS.md y la política de la tienda donde distribuyas el juego.

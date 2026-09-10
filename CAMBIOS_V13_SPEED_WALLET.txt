@@ -1,0 +1,13 @@
+V13 SPEED WALLET
+
+- Eliminada la integración de Google Play Billing.
+- Añadido SpeedPaymentManager basado en Lightning Address + LNURL-pay.
+- Destino: gastonc@speed.app.
+- Precio fijo: 50 sats por mejora.
+- Generación de invoice BOLT11 por 50 sats.
+- Intent Android dirigido a com.app.speedwallet para abrir Speed Wallet.
+- Fallback al esquema lightning: si no puede iniciarse el intent específico.
+- Persistencia de compras verificadas y pagos pendientes.
+- Verificación LUD-21 cuando el proveedor entrega URL de verificación.
+- Garage actualizado a SATS/Speed Wallet.
+- Pipeline Android 16 sin Google Billing.
